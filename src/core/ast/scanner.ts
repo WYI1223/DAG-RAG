@@ -12,6 +12,20 @@ import * as path from "path";
 import * as fs from "fs";
 import { ModuleNode, GraphEdge } from "../../types/graph.js";
 
+const NODE_BUILTINS = new Set([
+  "assert", "buffer", "child_process", "cluster", "console", "constants",
+  "crypto", "dgram", "dns", "domain", "events", "fs", "http", "http2",
+  "https", "module", "net", "os", "path", "perf_hooks", "process",
+  "punycode", "querystring", "readline", "repl", "stream", "string_decoder",
+  "sys", "timers", "tls", "tty", "url", "util", "v8", "vm", "wasi",
+  "worker_threads", "zlib",
+  // node: prefix variants are also handled by startsWith check below
+]);
+
+function isNodeBuiltin(pkg: string): boolean {
+  return NODE_BUILTINS.has(pkg) || pkg.startsWith("node:");
+}
+
 export interface ScanResult {
   modules: ModuleNode[];
   edges: GraphEdge[];    // depends_on edges only at this stage
@@ -168,6 +182,7 @@ export async function scanProject(options: ScanOptions): Promise<ScanResult> {
   const program = ts.createProgram(files, compilerOptions);
   const modules: ModuleNode[] = [];
   const edgeMap = new Map<string, GraphEdge>();
+  const externalNodes = new Map<string, ModuleNode>();
 
   for (const filePath of files) {
     const sourceFile = program.getSourceFile(filePath);
@@ -176,7 +191,6 @@ export async function scanProject(options: ScanOptions): Promise<ScanResult> {
     const id = makeModuleId(filePath, projectRoot);
     const exports = extractExports(sourceFile);
     const rawImports = extractImports(sourceFile);
-    const imports = rawImports.filter((i) => !i.startsWith("."));
 
     const moduleNode: ModuleNode = {
       id,
@@ -190,25 +204,65 @@ export async function scanProject(options: ScanOptions): Promise<ScanResult> {
     };
     modules.push(moduleNode);
 
-    // build depends_on edges for relative imports
     for (const imp of rawImports) {
-      const resolved = resolveImport(imp, filePath, projectRoot);
-      if (!resolved) continue;
+      if (imp.startsWith(".")) {
+        // relative import → depends_on edge to internal module
+        const resolved = resolveImport(imp, filePath, projectRoot);
+        if (!resolved) continue;
 
-      const toId = makeModuleId(resolved, projectRoot);
-      const edgeId = makeEdgeId(id, toId, "depends_on");
+        const toId = makeModuleId(resolved, projectRoot);
+        const edgeId = makeEdgeId(id, toId, "depends_on");
 
-      if (!edgeMap.has(edgeId)) {
-        edgeMap.set(edgeId, {
-          id: edgeId,
-          from: id,
-          to: toId,
-          kind: "depends_on",
-          certainty: "certain",   // AST-derived, deterministic
-        });
+        if (!edgeMap.has(edgeId)) {
+          edgeMap.set(edgeId, {
+            id: edgeId,
+            from: id,
+            to: toId,
+            kind: "depends_on",
+            certainty: "certain",
+          });
+        }
+      } else {
+        // external package import → create external node + edge
+        // normalize: @scope/pkg/sub → @scope/pkg, pkg/sub → pkg
+        const pkgName = imp.startsWith("@")
+          ? imp.split("/").slice(0, 2).join("/")
+          : imp.split("/")[0];
+
+        // skip Node.js builtins
+        if (isNodeBuiltin(pkgName)) continue;
+
+        const extId = `ext:${pkgName}`;
+
+        if (!externalNodes.has(extId)) {
+          externalNodes.set(extId, {
+            id: extId,
+            kind: "module",
+            label: pkgName,
+            filePath: "",
+            language: "external",
+            exports: [],
+            imports: [],
+            createdAt: new Date().toISOString(),
+          });
+        }
+
+        const edgeId = makeEdgeId(id, extId, "depends_on");
+        if (!edgeMap.has(edgeId)) {
+          edgeMap.set(edgeId, {
+            id: edgeId,
+            from: id,
+            to: extId,
+            kind: "depends_on",
+            certainty: "certain",
+          });
+        }
       }
     }
   }
 
-  return { modules, edges: [...edgeMap.values()] };
+  return {
+    modules: [...modules, ...externalNodes.values()],
+    edges: [...edgeMap.values()],
+  };
 }

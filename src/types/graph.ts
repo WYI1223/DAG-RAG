@@ -26,7 +26,7 @@ export interface AdrNode extends BaseNode {
 export interface ModuleNode extends BaseNode {
   kind: "module";
   filePath: string;
-  language: "typescript" | "python" | "unknown";
+  language: "typescript" | "python" | "external" | "unknown";
   exports: string[];   // exported symbol names (from AST)
   imports: string[];   // imported module paths (from AST)
 }

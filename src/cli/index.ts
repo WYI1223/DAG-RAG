@@ -9,6 +9,7 @@
  *   adr-graph viz     — generate HTML visualization (coming soon)
  */
 
+import "dotenv/config";
 import { Command } from "commander";
 import chalk from "chalk";
 import ora from "ora";
@@ -21,6 +22,24 @@ import { buildDAG, computeStats } from "../core/dag/builder.js";
 import { loadDAG, saveDAG, ensureGitignoreEntry } from "../core/dag/store.js";
 import { analyzeImpact } from "../core/dag/impact.js";
 import { generateHTML } from "../core/viz/html-generator.js";
+import { createSemanticClient, analyzeSemantics } from "../core/semantic/index.js";
+
+/** Create a write stream for verbose output; returns the log path and stream */
+function createVerboseLog(projectRoot: string): { logPath: string; stream: fs.WriteStream } {
+  const dagDir = path.join(projectRoot, ".adr-graph");
+  if (!fs.existsSync(dagDir)) fs.mkdirSync(dagDir, { recursive: true });
+  const logPath = path.join(dagDir, "verbose.log");
+  const stream = fs.createWriteStream(logPath, { flags: "w" });
+  return { logPath, stream };
+}
+
+/** Try to open a file in VSCode editor */
+async function openInEditor(filePath: string) {
+  const { execSync } = await import("child_process");
+  try {
+    execSync(`code "${filePath}"`, { stdio: "ignore" });
+  } catch { /* not in VSCode or code CLI not available */ }
+}
 
 const program = new Command();
 
@@ -36,6 +55,8 @@ program
   .description("Cold-start: scan project and build initial semantic DAG")
   .option("-r, --root <path>", "project root", process.cwd())
   .option("--adr-dir <path>", "ADR directory", "docs/adrs")
+  .option("--no-semantic", "skip LLM semantic analysis")
+  .option("--verbose", "show raw LLM prompts and responses")
   .action(async (opts) => {
     const projectRoot = path.resolve(opts.root);
     const adrDir = path.resolve(projectRoot, opts.adrDir);
@@ -72,9 +93,53 @@ program
     // Build DAG
     const buildSpinner = ora("Building semantic DAG...").start();
     const dag = buildDAG(projectRoot, scanResult, adrs);
+    buildSpinner.succeed(chalk.green("Structural DAG built"));
+
+    // Phase 3: Semantic analysis (LLM)
+    if (opts.semantic !== false && adrs.length > 0) {
+      const client = createSemanticClient();
+      if (client) {
+        const providerLabel = { anthropic: "Anthropic API", bedrock: "AWS Bedrock", vertex: "Google Vertex AI", compatible: "Compatible API" }[client.provider];
+        const semSpinner = ora(`Analyzing semantic relationships (${providerLabel})...`).start();
+        let verboseLog: { logPath: string; stream: fs.WriteStream } | null = null;
+        if (opts.verbose) { verboseLog = createVerboseLog(projectRoot); }
+        try {
+          const semResult = await analyzeSemantics(dag, adrs, client, {
+            onProgress: (p) => {
+              const icon = p.status === "error" ? "✗" : p.status === "done" ? "✓" : "…";
+              const tps = p.tokensPerSec ? `  ${p.tokensPerSec} tok/s` : "";
+              semSpinner.text = `[${p.current}/${p.total}] ${icon} ${p.adrId}  (+${p.edgesAdded} edges)${tps}`;
+            },
+            verbose: opts.verbose,
+            verboseStream: verboseLog?.stream,
+          });
+          if (verboseLog) { verboseLog.stream.end(); await openInEditor(verboseLog.logPath); }
+          const avgTps = semResult.totalDurationMs > 0
+            ? Math.round((semResult.totalOutputTokens / semResult.totalDurationMs) * 1000)
+            : 0;
+          const tokenInfo = semResult.totalOutputTokens > 0
+            ? `  (${semResult.totalInputTokens} in / ${semResult.totalOutputTokens} out, ${avgTps} tok/s)`
+            : "";
+          semSpinner.succeed(
+            chalk.green(`Inferred ${semResult.edgesAdded} semantic edges from ${semResult.adrCount} ADRs`) + chalk.dim(tokenInfo)
+          );
+          if (verboseLog) console.log(chalk.dim(`  Verbose log: ${verboseLog.logPath}`));
+          if (semResult.errors.length > 0) {
+            for (const err of semResult.errors) {
+              console.log(chalk.yellow(`  ⚠ ${err}`));
+            }
+          }
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          semSpinner.fail(`Semantic analysis failed: ${msg}`);
+        }
+      } else {
+        console.log(chalk.dim("  Semantic layer skipped — set ADR_GRAPH_ANTHROPIC_KEY for LLM analysis"));
+      }
+    }
+
     saveDAG(dag, projectRoot);
     ensureGitignoreEntry(projectRoot);
-    buildSpinner.succeed(chalk.green("DAG saved to .adr-graph/dag.json"));
 
     // Summary
     const stats = computeStats(dag);
@@ -100,6 +165,8 @@ program
   .description("Re-scan project and update DAG (run after code changes)")
   .option("-r, --root <path>", "project root", process.cwd())
   .option("--adr-dir <path>", "ADR directory", "docs/adrs")
+  .option("--no-semantic", "skip LLM semantic analysis")
+  .option("--verbose", "show raw LLM prompts and responses")
   .action(async (opts) => {
     const projectRoot = path.resolve(opts.root);
     const adrDir = path.resolve(projectRoot, opts.adrDir);
@@ -119,11 +186,52 @@ program
     ]);
 
     const dag = buildDAG(projectRoot, scanResult, adrs);
-    // preserve existing snapshots and inferred/confirmed edges
+    // preserve existing snapshots
     dag.snapshots = existing.snapshots;
+    // preserve all inferred edges whose from/to still exist in the new DAG
     for (const [id, edge] of Object.entries(existing.edges)) {
-      if (edge.certainty === "inferred" && edge.confirmedAt) {
-        dag.edges[id] = edge; // preserve human-confirmed inferred edges
+      if (edge.certainty === "inferred" && dag.nodes[edge.from] && dag.nodes[edge.to]) {
+        if (!dag.edges[id]) {
+          dag.edges[id] = edge;
+        }
+      }
+    }
+
+    // Phase 3: Semantic analysis (LLM) — adds new inferred edges
+    if (opts.semantic !== false && adrs.length > 0) {
+      const client = createSemanticClient();
+      if (client) {
+        const providerLabel = { anthropic: "Anthropic API", bedrock: "AWS Bedrock", vertex: "Google Vertex AI", compatible: "Compatible API" }[client.provider];
+        let verboseLog: { logPath: string; stream: fs.WriteStream } | null = null;
+        if (opts.verbose) { verboseLog = createVerboseLog(projectRoot); }
+        spinner.text = `Analyzing semantic relationships (${providerLabel})...`;
+        try {
+          const semResult = await analyzeSemantics(dag, adrs, client, {
+            onProgress: (p) => {
+              const icon = p.status === "error" ? "✗" : p.status === "done" ? "✓" : "…";
+              const tps = p.tokensPerSec ? `  ${p.tokensPerSec} tok/s` : "";
+              spinner.text = `[${p.current}/${p.total}] ${icon} ${p.adrId}  (+${p.edgesAdded} edges)${tps}`;
+            },
+            verbose: opts.verbose,
+            verboseStream: verboseLog?.stream,
+          });
+          if (verboseLog) { verboseLog.stream.end(); await openInEditor(verboseLog.logPath); }
+          const avgTps = semResult.totalDurationMs > 0
+            ? Math.round((semResult.totalOutputTokens / semResult.totalDurationMs) * 1000)
+            : 0;
+          if (semResult.edgesAdded > 0) {
+            spinner.text = `Re-scan complete (+${semResult.edgesAdded} inferred edges, ${avgTps} tok/s)`;
+          }
+          if (verboseLog) console.log(chalk.dim(`  Verbose log: ${verboseLog.logPath}`));
+          if (semResult.errors.length > 0) {
+            for (const err of semResult.errors) {
+              console.log(chalk.yellow(`  ⚠ ${err}`));
+            }
+          }
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          spinner.warn(`Semantic analysis failed: ${msg}`);
+        }
       }
     }
 
@@ -132,7 +240,7 @@ program
     spinner.succeed(chalk.green("DAG updated"));
 
     const stats = computeStats(dag);
-    console.log(`\n  Modules: ${stats.moduleCount}  |  ADRs: ${stats.adrCount}  |  Edges: ${stats.totalEdges}\n`);
+    console.log(`\n  Modules: ${stats.moduleCount}  |  ADRs: ${stats.adrCount}  |  Edges: ${stats.totalEdges}  (${stats.certainEdges} certain, ${stats.inferredEdges} inferred)\n`);
   });
 
 // ---- status ------------------------------------------------
@@ -317,7 +425,7 @@ program
     const { execSync } = await import("child_process");
     try {
       if (process.platform === "win32") {
-        execSync(`start "" "${outputPath}"`, { stdio: "ignore", shell: true });
+        execSync(`start "" "${outputPath}"`, { stdio: "ignore", shell: "cmd.exe" });
       } else {
         const cmd = process.platform === "darwin" ? "open" : "xdg-open";
         execSync(`${cmd} "${outputPath}"`, { stdio: "ignore" });
