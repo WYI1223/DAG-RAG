@@ -1,0 +1,356 @@
+{
+  "version": "1",
+  "projectRoot": "D:\\Learn\\CS\\github\\DAGADR",
+  "createdAt": "2026-03-09T04:21:17.819Z",
+  "lastUpdatedAt": "2026-03-09T04:21:17.819Z",
+  "nodes": {
+    "module:tests/scanner.test.ts": {
+      "id": "module:tests/scanner.test.ts",
+      "kind": "module",
+      "label": "tests/scanner.test.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\tests\\scanner.test.ts",
+      "language": "typescript",
+      "exports": [],
+      "imports": [
+        "vitest",
+        "path",
+        "../src/core/ast/scanner.js"
+      ],
+      "createdAt": "2026-03-09T04:21:17.803Z"
+    },
+    "module:tests/builder.test.ts": {
+      "id": "module:tests/builder.test.ts",
+      "kind": "module",
+      "label": "tests/builder.test.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\tests\\builder.test.ts",
+      "language": "typescript",
+      "exports": [],
+      "imports": [
+        "vitest",
+        "path",
+        "../src/core/ast/scanner.js",
+        "../src/core/dag/adr-parser.js",
+        "../src/core/dag/builder.js"
+      ],
+      "createdAt": "2026-03-09T04:21:17.805Z"
+    },
+    "module:tests/adr-parser.test.ts": {
+      "id": "module:tests/adr-parser.test.ts",
+      "kind": "module",
+      "label": "tests/adr-parser.test.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\tests\\adr-parser.test.ts",
+      "language": "typescript",
+      "exports": [],
+      "imports": [
+        "vitest",
+        "path",
+        "../src/core/dag/adr-parser.js"
+      ],
+      "createdAt": "2026-03-09T04:21:17.806Z"
+    },
+    "module:src/types/graph.ts": {
+      "id": "module:src/types/graph.ts",
+      "kind": "module",
+      "label": "src/types/graph.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\src\\types\\graph.ts",
+      "language": "typescript",
+      "exports": [
+        "NodeKind",
+        "BaseNode",
+        "AdrNode",
+        "ModuleNode",
+        "ConceptNode",
+        "GraphNode",
+        "EdgeKind",
+        "EdgeCertainty",
+        "GraphEdge",
+        "BindingStatus",
+        "SemanticBinding",
+        "SemanticSnapshot",
+        "SemanticDAG"
+      ],
+      "imports": [],
+      "createdAt": "2026-03-09T04:21:17.807Z"
+    },
+    "module:src/cli/index.ts": {
+      "id": "module:src/cli/index.ts",
+      "kind": "module",
+      "label": "src/cli/index.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\src\\cli\\index.ts",
+      "language": "typescript",
+      "exports": [],
+      "imports": [
+        "commander",
+        "chalk",
+        "ora",
+        "path",
+        "fs",
+        "../core/ast/scanner.js",
+        "../core/dag/adr-parser.js",
+        "../core/dag/builder.js",
+        "../core/dag/store.js"
+      ],
+      "createdAt": "2026-03-09T04:21:17.809Z"
+    },
+    "module:src/core/dag/store.ts": {
+      "id": "module:src/core/dag/store.ts",
+      "kind": "module",
+      "label": "src/core/dag/store.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\src\\core\\dag\\store.ts",
+      "language": "typescript",
+      "exports": [
+        "getGraphDir",
+        "getDagPath",
+        "loadDAG",
+        "saveDAG",
+        "ensureGitignoreEntry"
+      ],
+      "imports": [
+        "fs",
+        "path",
+        "../../types/graph.js"
+      ],
+      "createdAt": "2026-03-09T04:21:17.810Z"
+    },
+    "module:src/core/dag/builder.ts": {
+      "id": "module:src/core/dag/builder.ts",
+      "kind": "module",
+      "label": "src/core/dag/builder.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\src\\core\\dag\\builder.ts",
+      "language": "typescript",
+      "exports": [
+        "buildDAG",
+        "DAGStats",
+        "computeStats"
+      ],
+      "imports": [
+        "path",
+        "crypto",
+        "../../types/graph.js",
+        "../ast/scanner.js",
+        "./adr-parser.js"
+      ],
+      "createdAt": "2026-03-09T04:21:17.812Z"
+    },
+    "module:src/core/dag/adr-parser.ts": {
+      "id": "module:src/core/dag/adr-parser.ts",
+      "kind": "module",
+      "label": "src/core/dag/adr-parser.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\src\\core\\dag\\adr-parser.ts",
+      "language": "typescript",
+      "exports": [
+        "AdrFrontmatter",
+        "ParsedAdr",
+        "parseAdrFile",
+        "scanAdrDirectory"
+      ],
+      "imports": [
+        "fs",
+        "path",
+        "../../types/graph.js"
+      ],
+      "createdAt": "2026-03-09T04:21:17.814Z"
+    },
+    "module:src/core/ast/scanner.ts": {
+      "id": "module:src/core/ast/scanner.ts",
+      "kind": "module",
+      "label": "src/core/ast/scanner.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\src\\core\\ast\\scanner.ts",
+      "language": "typescript",
+      "exports": [
+        "ScanResult",
+        "ScanOptions",
+        "scanProject"
+      ],
+      "imports": [
+        "typescript",
+        "path",
+        "fs",
+        "../../types/graph.js"
+      ],
+      "createdAt": "2026-03-09T04:21:17.817Z"
+    },
+    "ADR-001": {
+      "id": "ADR-001",
+      "kind": "adr",
+      "label": "Use TypeScript Compiler API for structural analysis",
+      "title": "Use TypeScript Compiler API for structural analysis",
+      "status": "accepted",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-001-typescript-compiler-api.md",
+      "createdAt": "2026-03-09T04:21:16.524Z"
+    },
+    "ADR-002": {
+      "id": "ADR-002",
+      "kind": "adr",
+      "label": "Use Vitest as the test framework",
+      "title": "Use Vitest as the test framework",
+      "status": "accepted",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-002-testing-with-vitest.md",
+      "createdAt": "2026-03-09T04:21:16.525Z"
+    }
+  },
+  "edges": {
+    "depends_on:module:tests/scanner.test.ts→module:src/core/ast/scanner.ts": {
+      "id": "depends_on:module:tests/scanner.test.ts→module:src/core/ast/scanner.ts",
+      "from": "module:tests/scanner.test.ts",
+      "to": "module:src/core/ast/scanner.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:tests/builder.test.ts→module:src/core/ast/scanner.ts": {
+      "id": "depends_on:module:tests/builder.test.ts→module:src/core/ast/scanner.ts",
+      "from": "module:tests/builder.test.ts",
+      "to": "module:src/core/ast/scanner.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:tests/builder.test.ts→module:src/core/dag/adr-parser.ts": {
+      "id": "depends_on:module:tests/builder.test.ts→module:src/core/dag/adr-parser.ts",
+      "from": "module:tests/builder.test.ts",
+      "to": "module:src/core/dag/adr-parser.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:tests/builder.test.ts→module:src/core/dag/builder.ts": {
+      "id": "depends_on:module:tests/builder.test.ts→module:src/core/dag/builder.ts",
+      "from": "module:tests/builder.test.ts",
+      "to": "module:src/core/dag/builder.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:tests/adr-parser.test.ts→module:src/core/dag/adr-parser.ts": {
+      "id": "depends_on:module:tests/adr-parser.test.ts→module:src/core/dag/adr-parser.ts",
+      "from": "module:tests/adr-parser.test.ts",
+      "to": "module:src/core/dag/adr-parser.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/cli/index.ts→module:src/core/ast/scanner.ts": {
+      "id": "depends_on:module:src/cli/index.ts→module:src/core/ast/scanner.ts",
+      "from": "module:src/cli/index.ts",
+      "to": "module:src/core/ast/scanner.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/cli/index.ts→module:src/core/dag/adr-parser.ts": {
+      "id": "depends_on:module:src/cli/index.ts→module:src/core/dag/adr-parser.ts",
+      "from": "module:src/cli/index.ts",
+      "to": "module:src/core/dag/adr-parser.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/cli/index.ts→module:src/core/dag/builder.ts": {
+      "id": "depends_on:module:src/cli/index.ts→module:src/core/dag/builder.ts",
+      "from": "module:src/cli/index.ts",
+      "to": "module:src/core/dag/builder.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/cli/index.ts→module:src/core/dag/store.ts": {
+      "id": "depends_on:module:src/cli/index.ts→module:src/core/dag/store.ts",
+      "from": "module:src/cli/index.ts",
+      "to": "module:src/core/dag/store.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/core/dag/store.ts→module:src/types/graph.ts": {
+      "id": "depends_on:module:src/core/dag/store.ts→module:src/types/graph.ts",
+      "from": "module:src/core/dag/store.ts",
+      "to": "module:src/types/graph.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/core/dag/builder.ts→module:src/types/graph.ts": {
+      "id": "depends_on:module:src/core/dag/builder.ts→module:src/types/graph.ts",
+      "from": "module:src/core/dag/builder.ts",
+      "to": "module:src/types/graph.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/core/dag/builder.ts→module:src/core/ast/scanner.ts": {
+      "id": "depends_on:module:src/core/dag/builder.ts→module:src/core/ast/scanner.ts",
+      "from": "module:src/core/dag/builder.ts",
+      "to": "module:src/core/ast/scanner.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/core/dag/builder.ts→module:src/core/dag/adr-parser.ts": {
+      "id": "depends_on:module:src/core/dag/builder.ts→module:src/core/dag/adr-parser.ts",
+      "from": "module:src/core/dag/builder.ts",
+      "to": "module:src/core/dag/adr-parser.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/core/dag/adr-parser.ts→module:src/types/graph.ts": {
+      "id": "depends_on:module:src/core/dag/adr-parser.ts→module:src/types/graph.ts",
+      "from": "module:src/core/dag/adr-parser.ts",
+      "to": "module:src/types/graph.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/core/ast/scanner.ts→module:src/types/graph.ts": {
+      "id": "depends_on:module:src/core/ast/scanner.ts→module:src/types/graph.ts",
+      "from": "module:src/core/ast/scanner.ts",
+      "to": "module:src/types/graph.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "implements:ADR-001→module:src/core/ast/scanner.ts": {
+      "id": "implements:ADR-001→module:src/core/ast/scanner.ts",
+      "from": "ADR-001",
+      "to": "module:src/core/ast/scanner.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-001→module:src/core/dag/store.ts": {
+      "id": "implements:ADR-001→module:src/core/dag/store.ts",
+      "from": "ADR-001",
+      "to": "module:src/core/dag/store.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-001→module:src/core/dag/builder.ts": {
+      "id": "implements:ADR-001→module:src/core/dag/builder.ts",
+      "from": "ADR-001",
+      "to": "module:src/core/dag/builder.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-001→module:src/core/dag/adr-parser.ts": {
+      "id": "implements:ADR-001→module:src/core/dag/adr-parser.ts",
+      "from": "ADR-001",
+      "to": "module:src/core/dag/adr-parser.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-002→module:src/core/ast/scanner.ts": {
+      "id": "implements:ADR-002→module:src/core/ast/scanner.ts",
+      "from": "ADR-002",
+      "to": "module:src/core/ast/scanner.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-002→module:src/core/dag/store.ts": {
+      "id": "implements:ADR-002→module:src/core/dag/store.ts",
+      "from": "ADR-002",
+      "to": "module:src/core/dag/store.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-002→module:src/core/dag/builder.ts": {
+      "id": "implements:ADR-002→module:src/core/dag/builder.ts",
+      "from": "ADR-002",
+      "to": "module:src/core/dag/builder.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-002→module:src/core/dag/adr-parser.ts": {
+      "id": "implements:ADR-002→module:src/core/dag/adr-parser.ts",
+      "from": "ADR-002",
+      "to": "module:src/core/dag/adr-parser.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    }
+  },
+  "snapshots": []
+}
