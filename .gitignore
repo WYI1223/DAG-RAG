@@ -3,3 +3,4 @@ dist/
 adr-graph.html
 .env
 .adr-graph/verbose*.log
+.adr-graph/temp*.log

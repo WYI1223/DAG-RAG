@@ -6,9 +6,9 @@
  * actual source code so the LLM can evaluate compliance.
  */
 
-import * as fs from "fs";
 import { GraphEdge, ModuleNode } from "../../types/graph.js";
 import { ParsedAdr } from "../dag/adr-parser.js";
+import { summarizeForCheck } from "./code-summarizer.js";
 
 // ---- types for LLM output ----------------------------------
 
@@ -20,21 +20,8 @@ export interface DriftResult {
 
 // ---- prompt construction ------------------------------------
 
-const MAX_ADR_CHARS = 3000;
-const MAX_CODE_CHARS = 6000;
-
-/** Read and truncate a source file */
-function readSourceCode(filePath: string): string | null {
-  try {
-    const code = fs.readFileSync(filePath, "utf-8");
-    if (code.length > MAX_CODE_CHARS) {
-      return code.slice(0, MAX_CODE_CHARS) + "\n// ...(truncated)";
-    }
-    return code;
-  } catch {
-    return null;
-  }
-}
+const MAX_ADR_CHARS = 8000;
+const CODE_BUDGET = 10000;
 
 export function buildCheckPrompt(
   adr: ParsedAdr,
@@ -47,7 +34,7 @@ export function buildCheckPrompt(
       ? adr.body.slice(0, MAX_ADR_CHARS) + "\n...(truncated)"
       : adr.body;
 
-  const code = readSourceCode(mod.filePath);
+  const code = summarizeForCheck(mod.filePath, adr, CODE_BUDGET);
   const codeSection = code
     ? code
     : `(source file not found: ${mod.filePath})`;
@@ -113,6 +100,7 @@ Rules:
 - If the ADR describes using a specific technology (e.g. a library, API, framework) and the module does NOT import or use that technology anywhere in its source code, it does NOT "implement" this ADR. Do not rationalize indirect relationships through delegation.
 - Apply this standard consistently: if two modules have the same relationship to the ADR (neither directly uses the technology), they must receive the same status.
 - If the source file could not be read, return "drifting" with reason explaining the file is inaccessible.
+- Lines marked "— N lines" or "— N lines (collapsed)" are summaries of code blocks not shown. Do NOT count collapsed blocks as evidence of absence — only evaluate the code you can actually see.
 - Be precise: quote specific function names, imports, or code patterns as evidence.`;
 }
 
