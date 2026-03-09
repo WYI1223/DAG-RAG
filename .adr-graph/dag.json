@@ -1,8 +1,8 @@
 {
   "version": "1",
   "projectRoot": "D:\\Learn\\CS\\github\\DAGADR",
-  "createdAt": "2026-03-09T07:59:01.932Z",
-  "lastUpdatedAt": "2026-03-09T07:59:01.932Z",
+  "createdAt": "2026-03-09T08:25:43.216Z",
+  "lastUpdatedAt": "2026-03-09T08:25:43.216Z",
   "nodes": {
     "module:vitest.config.ts": {
       "id": "module:vitest.config.ts",
@@ -14,7 +14,7 @@
       "imports": [
         "vitest/config"
       ],
-      "createdAt": "2026-03-09T07:59:01.915Z"
+      "createdAt": "2026-03-09T08:25:43.197Z"
     },
     "module:tests/semantic.test.ts": {
       "id": "module:tests/semantic.test.ts",
@@ -34,7 +34,7 @@
         "../src/core/semantic/analyzer.js",
         "../src/core/semantic/client.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.917Z"
+      "createdAt": "2026-03-09T08:25:43.198Z"
     },
     "module:tests/scanner.test.ts": {
       "id": "module:tests/scanner.test.ts",
@@ -48,7 +48,7 @@
         "path",
         "../src/core/ast/scanner.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.918Z"
+      "createdAt": "2026-03-09T08:25:43.199Z"
     },
     "module:tests/impact.test.ts": {
       "id": "module:tests/impact.test.ts",
@@ -66,7 +66,7 @@
         "../src/core/dag/impact.js",
         "../src/types/graph.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.918Z"
+      "createdAt": "2026-03-09T08:25:43.200Z"
     },
     "module:tests/builder.test.ts": {
       "id": "module:tests/builder.test.ts",
@@ -83,7 +83,7 @@
         "../src/core/dag/builder.js",
         "../src/types/graph.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.919Z"
+      "createdAt": "2026-03-09T08:25:43.200Z"
     },
     "module:tests/adr-parser.test.ts": {
       "id": "module:tests/adr-parser.test.ts",
@@ -97,7 +97,7 @@
         "path",
         "../src/core/dag/adr-parser.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.919Z"
+      "createdAt": "2026-03-09T08:25:43.201Z"
     },
     "module:src/types/graph.ts": {
       "id": "module:src/types/graph.ts",
@@ -121,7 +121,7 @@
         "SemanticDAG"
       ],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.920Z"
+      "createdAt": "2026-03-09T08:25:43.201Z"
     },
     "module:src/cli/index.ts": {
       "id": "module:src/cli/index.ts",
@@ -145,7 +145,7 @@
         "../core/viz/html-generator.js",
         "../core/semantic/index.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.921Z"
+      "createdAt": "2026-03-09T08:25:43.203Z"
     },
     "module:src/core/viz/html-generator.ts": {
       "id": "module:src/core/viz/html-generator.ts",
@@ -159,7 +159,7 @@
       "imports": [
         "../../types/graph.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.922Z"
+      "createdAt": "2026-03-09T08:25:43.204Z"
     },
     "module:src/core/semantic/prompt.ts": {
       "id": "module:src/core/semantic/prompt.ts",
@@ -177,7 +177,7 @@
         "../../types/graph.js",
         "../dag/adr-parser.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.923Z"
+      "createdAt": "2026-03-09T08:25:43.204Z"
     },
     "module:src/core/semantic/index.ts": {
       "id": "module:src/core/semantic/index.ts",
@@ -193,7 +193,7 @@
         "AnalysisProgress"
       ],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.923Z"
+      "createdAt": "2026-03-09T08:25:43.204Z"
     },
     "module:src/core/semantic/client.ts": {
       "id": "module:src/core/semantic/client.ts",
@@ -212,7 +212,7 @@
         "@anthropic-ai/bedrock-sdk",
         "@anthropic-ai/vertex-sdk"
       ],
-      "createdAt": "2026-03-09T07:59:01.923Z"
+      "createdAt": "2026-03-09T08:25:43.204Z"
     },
     "module:src/core/semantic/analyzer.ts": {
       "id": "module:src/core/semantic/analyzer.ts",
@@ -232,7 +232,7 @@
         "./client.js",
         "./prompt.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.923Z"
+      "createdAt": "2026-03-09T08:25:43.205Z"
     },
     "module:src/core/dag/store.ts": {
       "id": "module:src/core/dag/store.ts",
@@ -252,7 +252,7 @@
         "path",
         "../../types/graph.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.924Z"
+      "createdAt": "2026-03-09T08:25:43.205Z"
     },
     "module:src/core/dag/impact.ts": {
       "id": "module:src/core/dag/impact.ts",
@@ -271,7 +271,7 @@
         "path",
         "../../types/graph.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.924Z"
+      "createdAt": "2026-03-09T08:25:43.206Z"
     },
     "module:src/core/dag/builder.ts": {
       "id": "module:src/core/dag/builder.ts",
@@ -291,7 +291,7 @@
         "../ast/scanner.js",
         "./adr-parser.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.925Z"
+      "createdAt": "2026-03-09T08:25:43.206Z"
     },
     "module:src/core/dag/adr-parser.ts": {
       "id": "module:src/core/dag/adr-parser.ts",
@@ -310,7 +310,7 @@
         "path",
         "../../types/graph.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.925Z"
+      "createdAt": "2026-03-09T08:25:43.206Z"
     },
     "module:src/core/ast/scanner.ts": {
       "id": "module:src/core/ast/scanner.ts",
@@ -329,7 +329,7 @@
         "fs",
         "../../types/graph.js"
       ],
-      "createdAt": "2026-03-09T07:59:01.926Z"
+      "createdAt": "2026-03-09T08:25:43.207Z"
     },
     "ext:vitest": {
       "id": "ext:vitest",
@@ -339,7 +339,7 @@
       "language": "external",
       "exports": [],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.916Z"
+      "createdAt": "2026-03-09T08:25:43.197Z"
     },
     "ext:dotenv": {
       "id": "ext:dotenv",
@@ -349,7 +349,7 @@
       "language": "external",
       "exports": [],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.921Z"
+      "createdAt": "2026-03-09T08:25:43.203Z"
     },
     "ext:commander": {
       "id": "ext:commander",
@@ -359,7 +359,7 @@
       "language": "external",
       "exports": [],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.921Z"
+      "createdAt": "2026-03-09T08:25:43.203Z"
     },
     "ext:chalk": {
       "id": "ext:chalk",
@@ -369,7 +369,7 @@
       "language": "external",
       "exports": [],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.921Z"
+      "createdAt": "2026-03-09T08:25:43.203Z"
     },
     "ext:ora": {
       "id": "ext:ora",
@@ -379,7 +379,7 @@
       "language": "external",
       "exports": [],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.921Z"
+      "createdAt": "2026-03-09T08:25:43.203Z"
     },
     "ext:@anthropic-ai/sdk": {
       "id": "ext:@anthropic-ai/sdk",
@@ -389,7 +389,7 @@
       "language": "external",
       "exports": [],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.923Z"
+      "createdAt": "2026-03-09T08:25:43.204Z"
     },
     "ext:@anthropic-ai/bedrock-sdk": {
       "id": "ext:@anthropic-ai/bedrock-sdk",
@@ -399,7 +399,7 @@
       "language": "external",
       "exports": [],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.923Z"
+      "createdAt": "2026-03-09T08:25:43.204Z"
     },
     "ext:@anthropic-ai/vertex-sdk": {
       "id": "ext:@anthropic-ai/vertex-sdk",
@@ -409,7 +409,7 @@
       "language": "external",
       "exports": [],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.923Z"
+      "createdAt": "2026-03-09T08:25:43.204Z"
     },
     "ext:typescript": {
       "id": "ext:typescript",
@@ -419,7 +419,7 @@
       "language": "external",
       "exports": [],
       "imports": [],
-      "createdAt": "2026-03-09T07:59:01.926Z"
+      "createdAt": "2026-03-09T08:25:43.207Z"
     },
     "ADR-001": {
       "id": "ADR-001",
@@ -428,7 +428,7 @@
       "title": "Use TypeScript Compiler API for structural analysis",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-001-typescript-compiler-api.md",
-      "createdAt": "2026-03-09T07:59:01.928Z"
+      "createdAt": "2026-03-09T08:25:43.210Z"
     },
     "ADR-002": {
       "id": "ADR-002",
@@ -437,7 +437,7 @@
       "title": "Use Vitest as the test framework",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-002-testing-with-vitest.md",
-      "createdAt": "2026-03-09T07:59:01.928Z"
+      "createdAt": "2026-03-09T08:25:43.210Z"
     },
     "ADR-003": {
       "id": "ADR-003",
@@ -446,7 +446,7 @@
       "title": "Implement impact analysis as pure graph traversal without LLM",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-003-impact-analysis-via-graph-traversal.md",
-      "createdAt": "2026-03-09T07:59:01.928Z"
+      "createdAt": "2026-03-09T08:25:43.210Z"
     },
     "ADR-004": {
       "id": "ADR-004",
@@ -455,7 +455,7 @@
       "title": "Generate self-contained HTML visualization using D3.js via CDN",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-004-viz-self-contained-html-with-d3.md",
-      "createdAt": "2026-03-09T07:59:01.928Z"
+      "createdAt": "2026-03-09T08:25:43.210Z"
     },
     "ADR-005": {
       "id": "ADR-005",
@@ -464,7 +464,7 @@
       "title": "Track external package dependencies as nodes in the DAG",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-005-external-package-nodes.md",
-      "createdAt": "2026-03-09T07:59:01.929Z"
+      "createdAt": "2026-03-09T08:25:43.210Z"
     },
     "ADR-006": {
       "id": "ADR-006",
@@ -473,7 +473,7 @@
       "title": "Directory grouping, peripheral externals, and observation modes in visualization",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-006-viz-directory-grouping-and-modes.md",
-      "createdAt": "2026-03-09T07:59:01.929Z"
+      "createdAt": "2026-03-09T08:25:43.210Z"
     },
     "ADR-007": {
       "id": "ADR-007",
@@ -482,7 +482,7 @@
       "title": "Use treemap layout for directory observation mode",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-007-treemap-directory-layout.md",
-      "createdAt": "2026-03-09T07:59:01.929Z"
+      "createdAt": "2026-03-09T08:25:43.210Z"
     },
     "ADR-008": {
       "id": "ADR-008",
@@ -491,7 +491,7 @@
       "title": "Click-to-inspect and treemap interaction design",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-008-click-inspect-and-treemap-interaction.md",
-      "createdAt": "2026-03-09T07:59:01.929Z"
+      "createdAt": "2026-03-09T08:25:43.210Z"
     },
     "ADR-009": {
       "id": "ADR-009",
@@ -500,7 +500,7 @@
       "title": "Direct Anthropic API for semantic edge inference",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-009-llm-semantic-layer.md",
-      "createdAt": "2026-03-09T07:59:01.929Z"
+      "createdAt": "2026-03-09T08:25:43.211Z"
     },
     "ADR-010": {
       "id": "ADR-010",
@@ -509,7 +509,7 @@
       "title": "Multi-provider LLM client with progress reporting",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-010-multi-provider-and-progress.md",
-      "createdAt": "2026-03-09T07:59:01.929Z"
+      "createdAt": "2026-03-09T08:25:43.211Z"
     },
     "ADR-011": {
       "id": "ADR-011",
@@ -518,7 +518,7 @@
       "title": "Remove LLM self-assessed confidence, require evidence-based reason",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-011-remove-llm-self-confidence.md",
-      "createdAt": "2026-03-09T07:59:01.929Z"
+      "createdAt": "2026-03-09T08:25:43.211Z"
     },
     "ADR-012": {
       "id": "ADR-012",
@@ -527,7 +527,7 @@
       "title": "Token usage metrics and throughput reporting",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-012-token-metrics-in-progress.md",
-      "createdAt": "2026-03-09T07:59:01.929Z"
+      "createdAt": "2026-03-09T08:25:43.211Z"
     },
     "ADR-013": {
       "id": "ADR-013",
@@ -536,7 +536,7 @@
       "title": "Fix thinking-block extraction bug and add edge reason tooltip",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-013-fix-thinking-block-and-edge-tooltip.md",
-      "createdAt": "2026-03-09T07:59:01.929Z"
+      "createdAt": "2026-03-09T08:25:43.211Z"
     },
     "ADR-014": {
       "id": "ADR-014",
@@ -545,7 +545,16 @@
       "title": "Dotenv config, verbose log file, and truncation detection",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-014-dotenv-and-verbose-log-file.md",
-      "createdAt": "2026-03-09T07:59:01.929Z"
+      "createdAt": "2026-03-09T08:25:43.211Z"
+    },
+    "ADR-015": {
+      "id": "ADR-015",
+      "kind": "adr",
+      "label": "Extract thinking blocks to verbose log and fix tok/s display",
+      "title": "Extract thinking blocks to verbose log and fix tok/s display",
+      "status": "accepted",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-015-thinking-extraction-and-progress-fix.md",
+      "createdAt": "2026-03-09T08:25:43.211Z"
     }
   },
   "edges": {
@@ -1228,184 +1237,35 @@
       "kind": "implements",
       "certainty": "certain"
     },
-    "implements:ADR-001→module:src/types/graph.ts": {
-      "id": "implements:ADR-001→module:src/types/graph.ts",
-      "from": "ADR-001",
-      "to": "module:src/types/graph.ts",
-      "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR specifies building a 'dependency graph from source code' using TypeScript Compiler API. The graph.ts module exports NodeKind, BaseNode, ModuleNode, GraphNode, EdgeKind, EdgeCertainty - these are the core type definitions for representing the dependency graph structure that ADR-001 enables."
-      }
-    },
-    "implements:ADR-001→module:src/core/semantic/prompt.ts": {
-      "id": "implements:ADR-001→module:src/core/semantic/prompt.ts",
-      "from": "ADR-001",
-      "to": "module:src/core/semantic/prompt.ts",
-      "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR mentions 'Import/export relationships' as accessible via the TypeScript Compiler API. The prompt.ts module exports InferredEdge and filterRelevantModules - these process module relationships for semantic analysis, directly leveraging the structural analysis that ADR-001 provides."
-      }
-    },
-    "affects:ADR-001→module:src/core/viz/html-generator.ts": {
-      "id": "affects:ADR-001→module:src/core/viz/html-generator.ts",
-      "from": "ADR-001",
-      "to": "module:src/core/viz/html-generator.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "ADR-001 enables building a 'dependency graph' as a foundational layer. The html-generator.ts module exports generateHTML - it would visualize the dependency graph that results from applying the TypeScript Compiler API analysis."
-      }
-    },
-    "implements:ADR-002→module:src/core/semantic/client.ts": {
-      "id": "implements:ADR-002→module:src/core/semantic/client.ts",
-      "from": "ADR-002",
+    "implements:ADR-015→module:src/core/semantic/client.ts": {
+      "id": "implements:ADR-015→module:src/core/semantic/client.ts",
+      "from": "ADR-015",
       "to": "module:src/core/semantic/client.ts",
       "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR states the project needs 'a test foundation for the core modules' including the semantic layer. The semantic.client.ts module exports createSemanticClient which would be tested using Vitest to verify semantic analysis functionality."
-      }
+      "certainty": "certain"
     },
-    "implements:ADR-002→module:src/core/semantic/analyzer.ts": {
-      "id": "implements:ADR-002→module:src/core/semantic/analyzer.ts",
-      "from": "ADR-002",
+    "implements:ADR-015→module:src/core/semantic/analyzer.ts": {
+      "id": "implements:ADR-015→module:src/core/semantic/analyzer.ts",
+      "from": "ADR-015",
       "to": "module:src/core/semantic/analyzer.ts",
       "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR context mentions 'semantic layer' as one of the features to be added with test support. The analyzer.ts module exports analyzeSemantics which requires test coverage using Vitest."
-      }
+      "certainty": "certain"
     },
-    "implements:ADR-002→module:src/core/semantic/index.ts": {
-      "id": "implements:ADR-002→module:src/core/semantic/index.ts",
-      "from": "ADR-002",
-      "to": "module:src/core/semantic/index.ts",
-      "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The semantic/index.ts module is the public API for semantic analysis (exports analyzeSemantics). As part of the semantic layer needing tests per the ADR context, it implements this testing decision."
-      }
-    },
-    "implements:ADR-002→module:src/core/semantic/prompt.ts": {
-      "id": "implements:ADR-002→module:src/core/semantic/prompt.ts",
-      "from": "ADR-002",
-      "to": "module:src/core/semantic/prompt.ts",
-      "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR context explicitly lists 'semantic layer' as requiring test foundation. The prompt.ts module handles building analysis prompts for semantic inference and would need Vitest-based tests."
-      }
-    },
-    "implements:ADR-002→module:vitest.config.ts": {
-      "id": "implements:ADR-002→module:vitest.config.ts",
-      "from": "ADR-002",
-      "to": "module:vitest.config.ts",
-      "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "Direct evidence: vitest.config.ts is the configuration file that implements ADR-002's decision to 'Use Vitest as the test framework'. It enables zero-config TypeScript testing as stated in the ADR."
-      }
-    },
-    "implements:ADR-002→module:tests/semantic.test.ts": {
-      "id": "implements:ADR-002→module:tests/semantic.test.ts",
-      "from": "ADR-002",
-      "to": "module:tests/semantic.test.ts",
-      "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "Direct evidence: tests/semantic.test.ts is a test file that uses Vitest (per ADR-002) to test the semantic layer functionality. The test file directly implements the testing decision."
-      }
-    },
-    "affects:ADR-002→module:src/types/graph.ts": {
-      "id": "affects:ADR-002→module:src/types/graph.ts",
-      "from": "ADR-002",
-      "to": "module:src/types/graph.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR enables testing for all core modules. The graph.ts types define NodeKind, EdgeKind and other structures used by DAG builder and semantic analysis. Vitest testing of these modules requires the type definitions to be stable."
-      }
-    },
-    "affects:ADR-002→module:src/core/viz/html-generator.ts": {
-      "id": "affects:ADR-002→module:src/core/viz/html-generator.ts",
-      "from": "ADR-002",
-      "to": "module:src/core/viz/html-generator.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR enables testing across all modules. While visualization is not a core module listed in context, the decision to adopt Vitest provides the testing infrastructure that would constrain how html-generator.ts is tested (native ESM + TypeScript)."
-      }
-    },
-    "affects:ADR-002→module:src/cli/index.ts": {
-      "id": "affects:ADR-002→module:src/cli/index.ts",
-      "from": "ADR-002",
+    "implements:ADR-015→module:src/cli/index.ts": {
+      "id": "implements:ADR-015→module:src/cli/index.ts",
+      "from": "ADR-015",
       "to": "module:src/cli/index.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR adopts Vitest specifically because it 'matches our \"type\": \"module\" setup' - this configuration choice constrains how the CLI module can be tested, requiring ESM-compatible test patterns."
-      }
+      "kind": "implements",
+      "certainty": "certain"
     },
-    "affects:ADR-003→module:src/types/graph.ts": {
-      "id": "affects:ADR-003→module:src/types/graph.ts",
-      "from": "ADR-003",
+    "affects:ADR-004→module:src/types/graph.ts": {
+      "id": "affects:ADR-004→module:src/types/graph.ts",
+      "from": "ADR-004",
       "to": "module:src/types/graph.ts",
       "kind": "affects",
       "certainty": "inferred",
       "metadata": {
-        "reason": "ADR-003 implements impact analysis via DAG traversal; the graph types (NodeKind, AdrNode, ModuleNode, EdgeKind, EdgeCertainty) define the data structures required to represent the structural relationships that impact analysis traverses."
-      }
-    },
-    "affects:ADR-003→module:src/core/dag/builder.ts": {
-      "id": "affects:ADR-003→module:src/core/dag/builder.ts",
-      "from": "ADR-003",
-      "to": "module:src/core/dag/builder.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "ADR-003 states impact analysis walks the 'structural DAG'; the builder module creates this DAG from parsed ADRs and module bindings, making it the prerequisite data source for impact analysis."
-      }
-    },
-    "affects:ADR-003→module:src/core/dag/store.ts": {
-      "id": "affects:ADR-003→module:src/core/dag/store.ts",
-      "from": "ADR-003",
-      "to": "module:src/core/dag/store.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "ADR-003 requires loading the DAG to traverse it; the store module handles loading/saving the graph data that impact analysis operates on."
-      }
-    },
-    "affects:ADR-003→module:src/core/dag/adr-parser.ts": {
-      "id": "affects:ADR-003→module:src/core/dag/adr-parser.ts",
-      "from": "ADR-003",
-      "to": "module:src/core/dag/adr-parser.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "ADR-003 mentions walking the DAG to report 'governing ADRs, supersedes/conflicts chains'; the adr-parser module extracts this ADR metadata that populates the graph nodes impact analysis reads."
-      }
-    },
-    "affects:ADR-003→module:src/core/ast/scanner.ts": {
-      "id": "affects:ADR-003→module:src/core/ast/scanner.ts",
-      "from": "ADR-003",
-      "to": "module:src/core/ast/scanner.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "ADR-003 requires analyzing 'upstream/downstream dependencies' which are derived from source code imports; the scanner module provides the AST analysis that identifies these module relationships to build the DAG."
-      }
-    },
-    "affects:ADR-003→module:tests/impact.test.ts": {
-      "id": "affects:ADR-003→module:tests/impact.test.ts",
-      "from": "ADR-003",
-      "to": "module:tests/impact.test.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "ADR-003 defines the behavior of the impact analysis feature; the test module validates this behavior works correctly."
+        "reason": "The ADR states the 'viz command serializes the DAG data as inline JSON' - the graph.ts module defines the NodeKind, BaseNode, AdrNode, ModuleNode, GraphNode, EdgeKind, EdgeCertainty types that are serialized. The html-generator.ts imports these types to perform the serialization, making graph.ts a dependency of the implementation."
       }
     },
     "implements:ADR-005→module:src/core/dag/builder.ts": {
@@ -1415,17 +1275,7 @@
       "kind": "implements",
       "certainty": "inferred",
       "metadata": {
-        "reason": "The ADR creates 'external' module nodes for non-relative imports; the builder.ts module (exports: buildDAG, DAGStats, computeStats) is responsible for constructing the DAG and would need to include logic to create these external package nodes when building the graph."
-      }
-    },
-    "implements:ADR-005→module:src/core/dag/store.ts": {
-      "id": "implements:ADR-005→module:src/core/dag/store.ts",
-      "from": "ADR-005",
-      "to": "module:src/core/dag/store.ts",
-      "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR introduces new 'ext:*' node types; the store.ts module (exports: loadDAG, saveDAG) handles persisting the DAG and must be able to serialize/deserialize these external package nodes."
+        "reason": "The ADR requires creating external module nodes in the DAG. The builder.ts module imports scanner (which creates external nodes) and constructs the complete DAG with depends_on edges, directly implementing the decision to track external dependencies."
       }
     },
     "affects:ADR-005→module:src/core/dag/impact.ts": {
@@ -1435,87 +1285,37 @@
       "kind": "affects",
       "certainty": "inferred",
       "metadata": {
-        "reason": "The ADR states 'impact analysis now shows external dependencies (useful context for AI assistants)' - this directly describes how the impact.ts module (exports: analyzeImpact, ImpactReport) is constrained by this decision to include external packages in impact analysis."
+        "reason": "The ADR states 'impact analysis now shows external dependencies (useful context for AI assistants)'. The impact.ts module analyzes the DAG and would need to handle the new external nodes in its impact calculations."
       }
     },
-    "affects:ADR-008→module:src/types/graph.ts": {
-      "id": "affects:ADR-008→module:src/types/graph.ts",
-      "from": "ADR-008",
-      "to": "module:src/types/graph.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR defines directional edge coloring (outgoing=green #7ee787, incoming=orange #ffa657) and mentions directed adjacency indices (outEdges, inEdges). The graph.ts module exports EdgeKind and GraphNode types which would need to support these directional edge concepts."
-      }
-    },
-    "affects:ADR-008→module:src/core/dag/builder.ts": {
-      "id": "affects:ADR-008→module:src/core/dag/builder.ts",
-      "from": "ADR-008",
-      "to": "module:src/core/dag/builder.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR explicitly states 'Directed adjacency indices (outEdges, inEdges) are precomputed at initialization for O(1) lookup during inspection.' The builder module (buildDAG) is where graph construction happens and would need to implement this precomputation."
-      }
-    },
-    "affects:ADR-009→module:src/types/graph.ts": {
-      "id": "affects:ADR-009→module:src/types/graph.ts",
-      "from": "ADR-009",
-      "to": "module:src/types/graph.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "ADR-009 defines EdgeCertainty values ('inferred', 'certain') and mentions node kinds (ADR, Module, Concept). The types/graph.ts module exports NodeKind, EdgeKind, EdgeCertainty which are directly referenced in the ADR's decision text."
-      }
-    },
-    "affects:ADR-009→module:src/core/dag/builder.ts": {
-      "id": "affects:ADR-009→module:src/core/dag/builder.ts",
-      "from": "ADR-009",
-      "to": "module:src/core/dag/builder.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "ADR-009 states 'all inferred edges are written to dag.json'. The builder.ts module exports buildDAG which constructs the DAG including these inferred edges, making it directly affected by this decision."
-      }
-    },
-    "affects:ADR-009→module:src/core/dag/store.ts": {
-      "id": "affects:ADR-009→module:src/core/dag/store.ts",
-      "from": "ADR-009",
+    "affects:ADR-005→module:src/core/dag/store.ts": {
+      "id": "affects:ADR-005→module:src/core/dag/store.ts",
+      "from": "ADR-005",
       "to": "module:src/core/dag/store.ts",
       "kind": "affects",
       "certainty": "inferred",
       "metadata": {
-        "reason": "ADR-009 explicitly mentions 'dag.json' for storing inferred edges. The store.ts module exports saveDAG and loadDAG functions that handle reading/writing this file, directly implementing the ADR's storage requirement."
+        "reason": "The ADR introduces new external module nodes in the graph. The store.ts module is responsible for saving and loading the DAG, so it must handle serialization/deserialization of these new external nodes."
       }
     },
-    "affects:ADR-009→module:src/core/ast/scanner.ts": {
-      "id": "affects:ADR-009→module:src/core/ast/scanner.ts",
-      "from": "ADR-009",
-      "to": "module:src/core/ast/scanner.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "ADR-009 describes analyzing 'relevant code modules' during scan and mentions 'compressed module list' sent to the LLM. The scanner.ts module (scanProject, ScanResult) provides the code module analysis that feeds into semantic inference."
-      }
-    },
-    "implements:ADR-010→module:src/core/semantic/index.ts": {
-      "id": "implements:ADR-010→module:src/core/semantic/index.ts",
-      "from": "ADR-010",
-      "to": "module:src/core/semantic/index.ts",
+    "implements:ADR-008→module:src/types/graph.ts": {
+      "id": "implements:ADR-008→module:src/types/graph.ts",
+      "from": "ADR-008",
+      "to": "module:src/types/graph.ts",
       "kind": "implements",
       "certainty": "inferred",
       "metadata": {
-        "reason": "The barrel file re-exports all semantic functionality including createSemanticClient and analyzeSemantics, which are the primary interfaces described in the ADR. It aggregates client.ts and analyzer.ts, making it part of the implementation surface."
+        "reason": "The ADR requires 'Directed adjacency indices (`outEdges`, `inEdges`)' to be precomputed at initialization. The graph.ts module defines EdgeKind and BaseNode types, which would need to be extended to include these adjacency properties for implementing the click-to-inspect feature."
       }
     },
-    "implements:ADR-010→module:src/core/semantic/prompt.ts": {
-      "id": "implements:ADR-010→module:src/core/semantic/prompt.ts",
-      "from": "ADR-010",
-      "to": "module:src/core/semantic/prompt.ts",
+    "implements:ADR-008→module:src/core/dag/builder.ts": {
+      "id": "implements:ADR-008→module:src/core/dag/builder.ts",
+      "from": "ADR-008",
+      "to": "module:src/core/dag/builder.ts",
       "kind": "implements",
       "certainty": "inferred",
       "metadata": {
-        "reason": "The ADR requires semantic analysis via LLM to infer edges. The prompt.ts module provides the buildAnalysisPrompt and parseAnalysisResponse functions that construct prompts and parse LLM outputs, which are essential for the 'semantic edge inference' functionality described in the Context section."
+        "reason": "The ADR states that 'Directed adjacency indices (`outEdges`, `inEdges`) are precomputed at initialization for O(1) lookup during inspection.' The builder.ts module exports buildDAG which constructs the graph, making it the natural place to compute and attach these adjacency indices."
       }
     },
     "affects:ADR-011→module:src/types/graph.ts": {
@@ -1525,57 +1325,7 @@
       "kind": "affects",
       "certainty": "inferred",
       "metadata": {
-        "reason": "The ADR states 'The `GraphEdge.confidence` field in the type system is left unchanged (it remains optional) for backwards compatibility' - this module exports EdgeCertainty and GraphNode types which define the type system containing the confidence field that the ADR explicitly addresses."
-      }
-    },
-    "affects:ADR-011→module:src/core/dag/store.ts": {
-      "id": "affects:ADR-011→module:src/core/dag/store.ts",
-      "from": "ADR-011",
-      "to": "module:src/core/dag/store.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR mentions 'backwards compatibility with any existing dag.json files' - this module exports loadDAG and saveDAG which handle reading/writing the dag.json files that may contain the confidence field from ADR-009."
-      }
-    },
-    "affects:ADR-011→module:src/core/dag/builder.ts": {
-      "id": "affects:ADR-011→module:src/core/dag/builder.ts",
-      "from": "ADR-011",
-      "to": "module:src/core/dag/builder.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR removes confidence from InferredEdge and changes how edges are filtered ('omit uncertain edges rather than scoring them') - this module exports buildDAG which processes inferred edges into the graph, directly affected by the output format change."
-      }
-    },
-    "affects:ADR-011→module:src/core/semantic/client.ts": {
-      "id": "affects:ADR-011→module:src/core/semantic/client.ts",
-      "from": "ADR-011",
-      "to": "module:src/core/semantic/client.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR changes the LLM output format by removing confidence and strengthening reason requirements - this module exports SemanticClient and createSemanticClient which handle the LLM interaction and response parsing that implements the new output format."
-      }
-    },
-    "affects:ADR-012→module:src/core/semantic/prompt.ts": {
-      "id": "affects:ADR-012→module:src/core/semantic/prompt.ts",
-      "from": "ADR-012",
-      "to": "module:src/core/semantic/prompt.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR describes parsing LLM responses to extract usage metadata ('reads response.usage.input_tokens and response.usage.output_tokens'). The prompt.ts module exports parseAnalysisResponse which handles response parsing, thus this ADR affects how responses must be parsed."
-      }
-    },
-    "implements:ADR-012→module:src/core/semantic/index.ts": {
-      "id": "implements:ADR-012→module:src/core/semantic/index.ts",
-      "from": "ADR-012",
-      "to": "module:src/core/semantic/index.ts",
-      "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR defines public API exports: SemanticAnalysisResult, AnalysisProgress, createSemanticClient, analyzeSemantics. The index.ts barrel file re-exports exactly these symbols, making it an implementation entry point for this decision."
+        "reason": "The ADR states 'Remove the `confidence` field from the LLM output format and the `InferredEdge` type.' Since graph.ts defines GraphNode, EdgeKind, and EdgeCertainty types, the decision to remove confidence from InferredEdge affects this type definitions module."
       }
     },
     "implements:ADR-013→module:src/core/semantic/prompt.ts": {
@@ -1585,7 +1335,7 @@
       "kind": "implements",
       "certainty": "inferred",
       "metadata": {
-        "reason": "The ADR mentions 'Reason text for inferred edges (from LLM analysis)' - module:src/core/semantic/prompt.ts exports parseAnalysisResponse which extracts LLM-inferred reasons for edges, directly implementing the edge reason feature."
+        "reason": "The ADR mentions 'Reason text for inferred edges (from LLM analysis)' for the edge tooltip feature. The prompt.ts module exports `InferredEdge` and `parseAnalysisResponse`, which handle the LLM-inferred reasoning that gets displayed in tooltips. This module was modified to include reason text in the inferred edge data structure."
       }
     },
     "implements:ADR-013→module:src/types/graph.ts": {
@@ -1595,7 +1345,7 @@
       "kind": "implements",
       "certainty": "inferred",
       "metadata": {
-        "reason": "The ADR specifies displaying 'Edge kind (implements, affects, depends_on, etc.) and certainty (certain / inferred)' in tooltips. module:src/types/graph.ts defines EdgeKind and EdgeCertainty types, which are required for the tooltip implementation."
+        "reason": "The ADR specifies adding edge kind (implements, affects, depends_on, etc.) and certainty (certain/inferred) to tooltips. The graph.ts module exports `EdgeKind` and `EdgeCertainty` types, which define these values. These type definitions needed to be present/updated to support the tooltip feature."
       }
     },
     "affects:ADR-013→module:src/core/semantic/analyzer.ts": {
@@ -1605,17 +1355,7 @@
       "kind": "affects",
       "certainty": "inferred",
       "metadata": {
-        "reason": "The ADR adds verbose mode that prints 'full prompt sent to the LLM and raw response text'. The analyzer.ts module contains analyzeSemantics which orchestrates the semantic analysis, and would be constrained to support verbose output options."
-      }
-    },
-    "affects:ADR-013→module:src/core/ast/scanner.ts": {
-      "id": "affects:ADR-013→module:src/core/ast/scanner.ts",
-      "from": "ADR-013",
-      "to": "module:src/core/ast/scanner.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR states '--verbose flag on init and scan commands prints the full prompt...'. The scanner.ts module handles project scanning via scanProject, which would be constrained to support the verbose flag for scan operations."
+        "reason": "The analyzer.ts module exports `analyzeSemantics` which orchestrates the semantic analysis. Since the client.ts fix changes how response content is extracted, the analyzer that calls the client needed to handle the new response format and pass through the thinking-block-safe text blocks."
       }
     }
   },

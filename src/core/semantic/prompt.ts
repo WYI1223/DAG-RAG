@@ -72,7 +72,11 @@ export function filterRelevantModules(
 /** Compress a module to a single prompt line */
 function moduleToLine(m: ModuleNode): string {
   const exports = m.exports.length > 0 ? m.exports.slice(0, 8).join(", ") : "(none)";
-  return `- ${m.id} | ${m.label} | exports: ${exports}`;
+  // show imports so the model knows which modules depend on which
+  const imports = m.imports.length > 0
+    ? m.imports.slice(0, 10).map(i => i.replace(/\.js$/, "")).join(", ")
+    : "(none)";
+  return `- ${m.id} | ${m.label} | exports: ${exports} | imports: ${imports}`;
 }
 
 export function buildAnalysisPrompt(
@@ -125,9 +129,12 @@ Analyze this ADR and the code modules above. Identify semantic relationships tha
 ]
 
 Rules:
-- "implements": from=ADR id, to=Module id. This code directly implements this decision.
-- "affects": from=ADR id, to=Module id. This decision constrains or influences this code.
-- The "reason" must cite specific evidence: quote relevant ADR text and explain how it maps to the module.
+- "implements": from=ADR id, to=Module id. The ADR decision DIRECTLY caused code changes in this module. The module's own code (not just its tests or consumers) was written or modified to fulfill this decision. A module that merely *uses* or *is tested by* the decision does NOT qualify.
+- "affects": from=ADR id, to=Module id. This decision constrains or influences this module's behavior or API contract.
+- Use the imports list to verify relationships. If the ADR describes a feature in module A, but module B does not import A (directly or transitively), B is unlikely to implement or be affected by this ADR.
+- Do NOT mark barrel/re-export files (index.ts) as "implements" — they just re-export, they don't implement decisions.
+- Do NOT mark test files as "implements" unless the ADR is specifically about the test framework itself.
+- The "reason" must cite specific evidence: quote relevant ADR text and explain how it maps to the module's exports/imports.
 - Only include relationships you are confident about. When in doubt, omit.
 - Do NOT repeat existing bindings.
 - If no new relationships are found, return an empty array: []`;
