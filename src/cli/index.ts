@@ -22,7 +22,7 @@ import { buildDAG, computeStats } from "../core/dag/builder.js";
 import { loadDAG, saveDAG, ensureGitignoreEntry } from "../core/dag/store.js";
 import { analyzeImpact } from "../core/dag/impact.js";
 import { generateHTML } from "../core/viz/html-generator.js";
-import { createSemanticClient, analyzeSemantics } from "../core/semantic/index.js";
+import { createSemanticClient, analyzeSemantics, checkDrift } from "../core/semantic/index.js";
 
 /** Create a write stream for verbose output; returns the log path and stream */
 function createVerboseLog(projectRoot: string): { logPath: string; stream: fs.WriteStream } {
@@ -433,6 +433,127 @@ program
       console.log(chalk.dim("  Opened in browser.\n"));
     } catch {
       console.log(chalk.dim(`  Open ${outputPath} in your browser.\n`));
+    }
+  });
+
+// ---- check -------------------------------------------------
+
+program
+  .command("check [target]")
+  .description("Check ADR↔Module bindings for drift (requires LLM)")
+  .option("-r, --root <path>", "project root", process.cwd())
+  .option("--adr-dir <path>", "ADR directory", "docs/adrs")
+  .option("--verbose", "show raw LLM prompts and responses")
+  .action(async (target, opts) => {
+    const projectRoot = path.resolve(opts.root);
+    const adrDir = path.resolve(projectRoot, opts.adrDir);
+    const dag = loadDAG(projectRoot);
+
+    if (!dag) {
+      console.log(chalk.yellow("No DAG found. Run `adr-graph init` first."));
+      process.exit(1);
+    }
+
+    const client = createSemanticClient();
+    if (!client) {
+      console.log(chalk.yellow("No LLM credentials found. Set ADR_GRAPH_ANTHROPIC_KEY (or other provider env vars)."));
+      process.exit(1);
+    }
+
+    const adrs = scanAdrDirectory(adrDir);
+    if (adrs.length === 0) {
+      console.log(chalk.yellow("No ADRs found. Nothing to check."));
+      process.exit(0);
+    }
+
+    // determine filter
+    const filterAdr = target?.startsWith("ADR-") ? target : undefined;
+    const filterModule = target && !target.startsWith("ADR-")
+      ? `mod:${target.replace(/\\/g, "/")}`
+      : undefined;
+
+    const providerLabel = { anthropic: "Anthropic API", bedrock: "AWS Bedrock", vertex: "Google Vertex AI", compatible: "Compatible API" }[client.provider];
+    console.log(chalk.bold("\n🔍 adr-graph check\n"));
+    if (target) {
+      console.log(chalk.dim(`  Target: ${target}`));
+    }
+    console.log(chalk.dim(`  Provider: ${providerLabel}\n`));
+
+    const spinner = ora("Checking bindings for drift...").start();
+    let verboseLog: { logPath: string; stream: fs.WriteStream } | null = null;
+    if (opts.verbose) { verboseLog = createVerboseLog(projectRoot); }
+
+    try {
+      const result = await checkDrift(dag, adrs, client, {
+        filterAdr,
+        filterModule,
+        onProgress: (p) => {
+          const tps = p.tokensPerSec ? `  ${p.tokensPerSec} tok/s` : "";
+          spinner.text = `[${p.current}/${p.total}] ${p.adrId} → ${p.moduleId}${tps}`;
+        },
+        verbose: opts.verbose,
+        verboseStream: verboseLog?.stream,
+      });
+
+      if (verboseLog) { verboseLog.stream.end(); }
+      spinner.stop();
+
+      if (result.bindingsChecked === 0) {
+        console.log(chalk.yellow("  No ADR↔Module bindings found to check."));
+        if (target) {
+          console.log(chalk.dim(`  Ensure "${target}" has implements/affects edges in the DAG.\n`));
+        }
+        process.exit(0);
+      }
+
+      // display results
+      console.log(chalk.bold("  Results:\n"));
+      for (const b of result.bindings) {
+        const adrNode = dag.nodes[b.adrId];
+        const modNode = dag.nodes[b.moduleId];
+        const adrLabel = adrNode?.label ?? b.adrId;
+        const modLabel = modNode?.label ?? b.moduleId;
+
+        const isMisbound = b.reason?.startsWith("[MISBOUND]");
+        const reason = isMisbound ? b.reason?.replace("[MISBOUND] ", "") : b.reason;
+
+        if (isMisbound) {
+          console.log(chalk.magenta(`  🔗 ${b.adrId} ↔ ${modLabel}`) + chalk.dim("  [misbound]"));
+          console.log(chalk.dim(`     Binding may be incorrect: ${reason}`));
+        } else if (b.status === "aligned") {
+          console.log(chalk.green(`  ✅ ${b.adrId} ↔ ${modLabel}`) + chalk.dim("  [aligned]"));
+        } else if (b.status === "drifting") {
+          console.log(chalk.yellow(`  ⚠️  ${b.adrId} ↔ ${modLabel}`) + chalk.dim("  [drifting]"));
+          console.log(chalk.dim(`     ${reason}`));
+        } else if (b.status === "broken") {
+          console.log(chalk.red(`  🔴 ${b.adrId} ↔ ${modLabel}`) + chalk.dim("  [broken]"));
+          console.log(chalk.dim(`     ${reason}`));
+        }
+      }
+
+      // summary
+      const avgTps = result.totalDurationMs > 0
+        ? Math.round((result.totalOutputTokens / result.totalDurationMs) * 1000)
+        : 0;
+      console.log(chalk.bold("\n  Summary:"));
+      console.log(`    Bindings checked: ${result.bindingsChecked}`);
+      const misboundInfo = result.misbound > 0 ? `  ${chalk.magenta("Misbound")}: ${result.misbound}` : "";
+      console.log(`    ${chalk.green("Aligned")}: ${result.aligned}  ${chalk.yellow("Drifting")}: ${result.drifting}  ${chalk.red("Broken")}: ${result.broken}${misboundInfo}`);
+      console.log(chalk.dim(`    Tokens: ${result.totalInputTokens} in / ${result.totalOutputTokens} out  (${avgTps} tok/s)`));
+
+      if (verboseLog) console.log(chalk.dim(`    Verbose log: ${verboseLog.logPath}`));
+      if (result.errors.length > 0) {
+        console.log(chalk.yellow("\n  Errors:"));
+        for (const err of result.errors) {
+          console.log(chalk.yellow(`    ⚠ ${err}`));
+        }
+      }
+      console.log("");
+    } catch (e) {
+      if (verboseLog) { verboseLog.stream.end(); }
+      spinner.fail("Drift check failed");
+      console.error(e);
+      process.exit(1);
     }
   });
 
