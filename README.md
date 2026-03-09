@@ -8,13 +8,20 @@ Most codebases accumulate a silent gap between intent and implementation. Archit
 
 ## The Problem
 
-When a Tech Lead makes an architectural decision, it travels through a chain:
+Documentation accumulates. Decisions get written down in ADRs, Confluence pages, design docs, Slack threads. The codebase keeps moving. At some point — gradually, invisibly — the documents stop describing what the code actually does. No one notices until someone breaks something that "shouldn't be breakable," or spends a day reading code to understand a constraint that should have been one sentence.
+
+This is not a discipline problem. It is a structural problem: documentation and code are separate artifacts with separate maintenance cycles, and under pressure the documentation loses.
+
+The only sustainable answer is to make ADRs the **single source of truth** — not alongside other documentation, but instead of it. ADRs are small enough to maintain because they only record decisions, not implementations. The code records the implementation. Together they are complete.
+
+The missing piece is the binding between them: something that makes the gap visible the moment it opens, so it never silently accumulates.
 
 ```
-TL's intent → ADR document → team member's interpretation → code
+TL's intent → ADR → team member's interpretation → code
+AI assistant → locally reasonable change → globally wrong result
 ```
 
-At every step, meaning is lost. The team member fills in gaps with assumptions. The AI coding assistant lacks context and modifies only part of the codebase. Six months later, no one knows why the auth module is structured the way it is, or which decisions are still in force.
+At every step, meaning is lost. `adr-graph` closes that gap by binding ADRs directly to the code they govern, and detecting the moment implementation diverges from intent.
 
 This is not a documentation problem. It's a **semantic drift** problem.
 
@@ -102,7 +109,7 @@ Or use without installing:
 npx adr-graph init
 ```
 
-**Requirements:** Node.js 18+, TypeScript project (Python support in v0.3)
+**Requirements:** Node.js 18+, TypeScript project (Python support planned for v0.4)
 
 ---
 
@@ -291,7 +298,9 @@ adr-graph/
 │   │   │   ├── builder.ts    # DAG assembly
 │   │   │   └── store.ts      # .adr-graph/dag.json persistence
 │   │   └── semantic/
-│   │       └── (LLM layer — v0.2)
+│   │       ├── analyzer.ts  # ADR↔Module semantic inference orchestrator
+│   │       ├── client.ts    # Multi-provider LLM client
+│   │       └── prompt.ts    # Prompt construction and response parsing
 │   └── types/
 │       └── graph.ts          # Core type definitions
 ├── docs/

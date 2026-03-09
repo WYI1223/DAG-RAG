@@ -2,3 +2,4 @@ node_modules/
 dist/
 adr-graph.html
 .env
+.adr-graph/verbose*.log

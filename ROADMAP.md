@@ -1,14 +1,12 @@
 # Roadmap
 
-Current version: **v0.1 — Structural Foundation**
+Current version: **v0.2 — Semantic Layer**
 
 ---
 
-## v0.1 — Structural Foundation ✅ *current*
+## v0.1 — Structural Foundation ✅ *delivered*
 
 **Goal:** Prove the data model. Build the certain layer. Make the DAG real.
-
-The first version establishes the core infrastructure: the type system, the AST scanner, the ADR parser, the DAG builder, and the CLI skeleton. Everything at this stage is deterministic — no LLM, no inference, no probability. If the graph says two things are connected, they are connected.
 
 **Delivered:**
 - Core type system (`SemanticDAG`, `GraphNode`, `GraphEdge`, `SemanticSnapshot`)
@@ -18,54 +16,53 @@ The first version establishes the core infrastructure: the type system, the AST 
 - `.adr-graph/dag.json` persistence, versioned with git
 - CLI: `init`, `scan`, `status`
 
-**What this version cannot do:**
-- Detect semantic drift (no LLM yet)
-- Handle projects with no existing ADRs (no reverse-generation yet)
-- Visualize the graph
-- Support languages other than TypeScript
-
 ---
 
-## v0.2 — Semantic Layer 🔜 *next*
+## v0.2 — Semantic Layer 🔄 *current*
 
 **Goal:** Introduce LLM analysis on top of the structural skeleton. Make drift visible.
 
-This is the version where the system becomes genuinely useful. The LLM receives the structural DAG as compressed context — not raw source code — and uses it to reason about whether implementations still match their governing decisions.
+**Delivered:**
+- Multi-provider LLM client (Anthropic direct, AWS Bedrock, Google Vertex, compatible APIs)
+- `analyzeSemantics` — iterates ADRs, calls LLM, merges inferred edges into DAG
+- Keyword-based module filtering to stay within token budget
+- `inferred` edges with `reason` field, distinct from `certain` AST-derived edges
+- `AnalysisProgress` callback with real-time token/s tracking
+- Graceful degradation: structural analysis runs without API key
+- Prompt optimization: import context in module lines, stricter `implements` definition (ADR-016)
+- Interactive DAG visualization with D3.js force-directed + treemap layouts
+- `impact` command — graph traversal to find affected ADRs and modules
+- External package nodes (`ext:` prefix, excluded from semantic analysis)
+
+---
+
+## v0.3 — Git Integration & Value Validation 🔜
+
+**Goal:** Connect the semantic layer to the git commit cycle. This is the version where the tool stops being a static analyzer and becomes a live architectural monitor — the point where its real value becomes demonstrable.
 
 **Planned:**
 
 **Git hook integration**
 - `adr-graph install-hook` — installs a `post-commit` hook
-- On each commit: extract diff → locate affected DAG nodes → compute semantic binding status → write `SemanticSnapshot`
-- Snapshots stored in `.adr-graph/dag.json`, committed with the code
-
-**Semantic binding evaluation**
-- LLM receives: ADR text + git diff + local DAG subgraph (1-2 hops from changed nodes)
-- LLM outputs: binding status (`aligned` / `drifting` / `broken`), confidence score, plain-language reason
-- Subgraph boundary heuristic: prioritize nodes with direct ADR bindings, then recently modified neighbors, drop long-stable nodes
+- On each commit: extract diff → locate affected DAG nodes → query local subgraph → LLM evaluates binding status → write `SemanticSnapshot`
+- Snapshots stored in `.adr-graph/dag.json`, committed alongside code
+- Each snapshot anchored to a git commit hash — full semantic history, free
 
 **Drift display in `status`**
-- `certain` drift: structural — interface removed, import path broken, superseded ADR still implemented
+- `certain` drift: structural — interface removed, import broken, superseded ADR still implemented
 - `inferred` drift: semantic — LLM assessment with confidence score, pending human confirmation
+- Output designed to be immediately actionable: file path, ADR id, reason, suggested next step
 
-**`adr-graph impact <file>`**
-- Pre-flight check before AI-assisted coding
-- Output: which ADRs govern this file, what constraints they impose, which other modules share those ADRs
-- Designed to be pasted directly into an AI assistant's context window
-
-**Technical decisions for v0.2:**
-- LLM provider: Anthropic Claude API (claude-sonnet-4-20250514)
-- API key via environment variable `ADR_GRAPH_ANTHROPIC_KEY`
-- Token budget per analysis: ~4000 tokens input, 500 output
-- Graceful degradation: if no API key, skip semantic layer, structural analysis still runs
+**Subgraph boundary heuristic**
+- Prioritize nodes with direct ADR bindings over transitive neighbors
+- Drop long-stable nodes (no changes in last N commits)
+- Cap at token budget, never send full graph
 
 ---
 
-## v0.3 — Cold Start & Python 🔜
+## v0.4 — Cold Start & Multi-language 🔜
 
 **Goal:** Make the tool usable on projects with no existing ADRs. Add Python support.
-
-The cold-start problem is real: most projects that would benefit from `adr-graph` have zero ADRs. Without a way to bootstrap from existing code, adoption requires significant upfront work.
 
 **Planned:**
 
@@ -73,31 +70,28 @@ The cold-start problem is real: most projects that would benefit from `adr-graph
 - `adr-graph discover` — LLM analyzes structural DAG and suggests candidate ADRs
 - Output: draft ADR files in `docs/adrs/` with frontmatter pre-filled
 - User reviews and accepts/rejects each suggestion
-- Accepted drafts become `status: proposed` ADRs, rejected ones are discarded
-- Incremental trust: newly discovered ADRs start unconfirmed, gain trust as humans validate bindings
+- Incremental trust: accepted drafts start as `proposed`, gain confidence as bindings are validated over time
 
 **Python language adapter**
-- Use Python's built-in `ast` module via a subprocess bridge or Tree-sitter
-- Extract: module imports, function definitions, class definitions, `__all__` exports
+- Tree-sitter based — establishes the `LanguageAdapter` interface for all future language support
+- Extracts: imports, function and class definitions, `__all__` exports
 - `depends_on` edges for relative imports, same certainty model as TypeScript
 
 **Language adapter interface**
-- Formal `LanguageScanner` interface so community adapters can be built for Go, Rust, Java, etc.
+- Formal `LanguageAdapter` interface enabling community-built adapters for Go, Rust, Java, etc.
 
 ---
 
-## v0.4 — Visualization & IDE Integration 🔜
+## v0.5 — Advanced Visualization & IDE Integration 🔜
 
-**Goal:** Make the graph visible and queryable without the terminal.
+**Goal:** Extend the existing visualization and bring it into the IDE.
 
 **Planned:**
 
-**`adr-graph viz`**
-- Generates a self-contained HTML file with an interactive DAG
-- Node types visually distinct (ADR / Module / Concept)
-- Edge certainty visually distinct (solid = certain, dashed = inferred)
-- Click any node: see its full binding history, linked source files, governing ADRs
+**`adr-graph viz` enhancements**
 - Timeline slider: scrub through the project's semantic history commit by commit
+- Concept node visualization (when concept nodes are implemented)
+- Edge filtering by certainty and kind
 
 **VS Code extension (alpha)**
 - Inline annotations in source files: which ADRs govern this file
@@ -106,7 +100,7 @@ The cold-start problem is real: most projects that would benefit from `adr-graph
 
 ---
 
-## v0.5 — Collaboration & CI 🔜
+## v0.6 — Collaboration & CI 🔜
 
 **Goal:** Make architectural drift a team-level signal, not just a local one.
 
@@ -162,17 +156,17 @@ These are ideas that have been discussed but not yet scheduled. They require mor
 
 If you want to contribute, here is where effort would have the most impact right now:
 
-**v0.2 (active):**
-- Git hook implementation and testing across different OS environments
-- Prompt engineering for the semantic binding evaluator
-- Testing the subgraph boundary heuristic on real-world projects
+**v0.3 (next — git integration):**
+- `post-commit` hook implementation and cross-platform testing (macOS, Linux, Windows/WSL)
+- `SemanticSnapshot` writer: diff → affected nodes → binding status → snapshot
+- Drift detection and display in `status` output
 
-**v0.3:**
-- Python language adapter
-- Language adapter interface design
-- Testing `discover` on projects of varying sizes and styles
+**v0.4:**
+- Python language adapter via Tree-sitter
+- `LanguageAdapter` interface design
+- Testing `discover` on projects with zero existing ADRs
 
 **Ongoing:**
-- Real-world project testing (bring your own codebase)
-- ADR format edge cases (unusual frontmatter, non-standard heading structures)
-- Performance profiling on large TypeScript projects (1000+ files)
+- Real-world project testing across languages and team sizes
+- ADR format edge cases (non-standard headings, missing frontmatter)
+- Performance profiling on large TypeScript projects (500+ files)

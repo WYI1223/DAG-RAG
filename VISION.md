@@ -18,13 +18,17 @@ The second history lives in people's heads, in Confluence pages, in Slack thread
 
 A codebase without recorded decisions is like a city without zoning laws — structures get built wherever is convenient, without regard for what was supposed to go there. The result isn't chaos immediately. It's gradual, invisible erosion: systems that become harder to change, decisions that get made again and again because no one remembers they were already made, and engineers who spend hours reading code just to understand a constraint that should have been written down in a sentence.
 
-The traditional answer to this is documentation. Write more ADRs. Keep them updated. Review them in planning meetings. This answer fails in practice because it treats documentation as a separate activity from development, and separate activities get deprioritized under pressure.
+The traditional answer to this is documentation. Write more ADRs. Keep them updated. Review them in planning meetings. This answer fails in practice because it treats documentation as a separate activity from development, and separate activities get deprioritized under pressure. The result is a documentation graveyard: pages that were accurate once, are now quietly wrong, and no one knows which parts to trust.
 
-The right answer is to make documentation inseparable from code — not by generating it from code (which loses intent), but by **binding** it to code so tightly that the gap between them becomes visible the moment it opens.
+The right answer is to eliminate the gap between documentation and code entirely. Not by generating documentation from code (which loses intent), but by making **ADR + code the single source of truth**. ADRs are small, they record decisions not implementations, and they are maintainable precisely because they don't try to describe everything. The code describes the how. The ADR describes the why. Together they are complete. Separately, neither is sufficient.
+
+`adr-graph` exists to keep these two halves bound together — so tightly that the moment they diverge, the gap becomes visible.
 
 ---
 
 ## Who This Is For
+
+`adr-graph` does not prescribe how your ADRs are written or where they come from. You can write them by hand, extract them from design discussions, or generate drafts with an AI assistant and refine them. The tool only cares about what happens after an ADR exists: whether the code that is supposed to implement it still does.
 
 ### The AI-augmented developer
 
