@@ -1,9 +1,21 @@
 {
   "version": "1",
   "projectRoot": "D:\\Learn\\CS\\github\\DAGADR",
-  "createdAt": "2026-03-09T04:21:17.819Z",
-  "lastUpdatedAt": "2026-03-09T04:21:17.819Z",
+  "createdAt": "2026-03-09T05:02:38.680Z",
+  "lastUpdatedAt": "2026-03-09T05:02:38.680Z",
   "nodes": {
+    "module:vitest.config.ts": {
+      "id": "module:vitest.config.ts",
+      "kind": "module",
+      "label": "vitest.config.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\vitest.config.ts",
+      "language": "typescript",
+      "exports": [],
+      "imports": [
+        "vitest/config"
+      ],
+      "createdAt": "2026-03-09T05:02:38.666Z"
+    },
     "module:tests/scanner.test.ts": {
       "id": "module:tests/scanner.test.ts",
       "kind": "module",
@@ -16,7 +28,25 @@
         "path",
         "../src/core/ast/scanner.js"
       ],
-      "createdAt": "2026-03-09T04:21:17.803Z"
+      "createdAt": "2026-03-09T05:02:38.667Z"
+    },
+    "module:tests/impact.test.ts": {
+      "id": "module:tests/impact.test.ts",
+      "kind": "module",
+      "label": "tests/impact.test.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\tests\\impact.test.ts",
+      "language": "typescript",
+      "exports": [],
+      "imports": [
+        "vitest",
+        "path",
+        "../src/core/ast/scanner.js",
+        "../src/core/dag/adr-parser.js",
+        "../src/core/dag/builder.js",
+        "../src/core/dag/impact.js",
+        "../src/types/graph.js"
+      ],
+      "createdAt": "2026-03-09T05:02:38.667Z"
     },
     "module:tests/builder.test.ts": {
       "id": "module:tests/builder.test.ts",
@@ -30,9 +60,10 @@
         "path",
         "../src/core/ast/scanner.js",
         "../src/core/dag/adr-parser.js",
-        "../src/core/dag/builder.js"
+        "../src/core/dag/builder.js",
+        "../src/types/graph.js"
       ],
-      "createdAt": "2026-03-09T04:21:17.805Z"
+      "createdAt": "2026-03-09T05:02:38.668Z"
     },
     "module:tests/adr-parser.test.ts": {
       "id": "module:tests/adr-parser.test.ts",
@@ -46,7 +77,7 @@
         "path",
         "../src/core/dag/adr-parser.js"
       ],
-      "createdAt": "2026-03-09T04:21:17.806Z"
+      "createdAt": "2026-03-09T05:02:38.668Z"
     },
     "module:src/types/graph.ts": {
       "id": "module:src/types/graph.ts",
@@ -70,7 +101,7 @@
         "SemanticDAG"
       ],
       "imports": [],
-      "createdAt": "2026-03-09T04:21:17.807Z"
+      "createdAt": "2026-03-09T05:02:38.669Z"
     },
     "module:src/cli/index.ts": {
       "id": "module:src/cli/index.ts",
@@ -88,9 +119,25 @@
         "../core/ast/scanner.js",
         "../core/dag/adr-parser.js",
         "../core/dag/builder.js",
-        "../core/dag/store.js"
+        "../core/dag/store.js",
+        "../core/dag/impact.js",
+        "../core/viz/html-generator.js"
       ],
-      "createdAt": "2026-03-09T04:21:17.809Z"
+      "createdAt": "2026-03-09T05:02:38.670Z"
+    },
+    "module:src/core/viz/html-generator.ts": {
+      "id": "module:src/core/viz/html-generator.ts",
+      "kind": "module",
+      "label": "src/core/viz/html-generator.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\src\\core\\viz\\html-generator.ts",
+      "language": "typescript",
+      "exports": [
+        "generateHTML"
+      ],
+      "imports": [
+        "../../types/graph.js"
+      ],
+      "createdAt": "2026-03-09T05:02:38.671Z"
     },
     "module:src/core/dag/store.ts": {
       "id": "module:src/core/dag/store.ts",
@@ -110,7 +157,26 @@
         "path",
         "../../types/graph.js"
       ],
-      "createdAt": "2026-03-09T04:21:17.810Z"
+      "createdAt": "2026-03-09T05:02:38.671Z"
+    },
+    "module:src/core/dag/impact.ts": {
+      "id": "module:src/core/dag/impact.ts",
+      "kind": "module",
+      "label": "src/core/dag/impact.ts",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\src\\core\\dag\\impact.ts",
+      "language": "typescript",
+      "exports": [
+        "ModuleImpact",
+        "AdrImpact",
+        "ImpactReport",
+        "resolveTarget",
+        "analyzeImpact"
+      ],
+      "imports": [
+        "path",
+        "../../types/graph.js"
+      ],
+      "createdAt": "2026-03-09T05:02:38.672Z"
     },
     "module:src/core/dag/builder.ts": {
       "id": "module:src/core/dag/builder.ts",
@@ -130,7 +196,7 @@
         "../ast/scanner.js",
         "./adr-parser.js"
       ],
-      "createdAt": "2026-03-09T04:21:17.812Z"
+      "createdAt": "2026-03-09T05:02:38.673Z"
     },
     "module:src/core/dag/adr-parser.ts": {
       "id": "module:src/core/dag/adr-parser.ts",
@@ -149,7 +215,7 @@
         "path",
         "../../types/graph.js"
       ],
-      "createdAt": "2026-03-09T04:21:17.814Z"
+      "createdAt": "2026-03-09T05:02:38.673Z"
     },
     "module:src/core/ast/scanner.ts": {
       "id": "module:src/core/ast/scanner.ts",
@@ -168,7 +234,7 @@
         "fs",
         "../../types/graph.js"
       ],
-      "createdAt": "2026-03-09T04:21:17.817Z"
+      "createdAt": "2026-03-09T05:02:38.678Z"
     },
     "ADR-001": {
       "id": "ADR-001",
@@ -177,7 +243,7 @@
       "title": "Use TypeScript Compiler API for structural analysis",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-001-typescript-compiler-api.md",
-      "createdAt": "2026-03-09T04:21:16.524Z"
+      "createdAt": "2026-03-09T05:02:37.820Z"
     },
     "ADR-002": {
       "id": "ADR-002",
@@ -186,7 +252,25 @@
       "title": "Use Vitest as the test framework",
       "status": "accepted",
       "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-002-testing-with-vitest.md",
-      "createdAt": "2026-03-09T04:21:16.525Z"
+      "createdAt": "2026-03-09T05:02:37.821Z"
+    },
+    "ADR-003": {
+      "id": "ADR-003",
+      "kind": "adr",
+      "label": "Implement impact analysis as pure graph traversal without LLM",
+      "title": "Implement impact analysis as pure graph traversal without LLM",
+      "status": "accepted",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-003-impact-analysis-via-graph-traversal.md",
+      "createdAt": "2026-03-09T05:02:37.821Z"
+    },
+    "ADR-004": {
+      "id": "ADR-004",
+      "kind": "adr",
+      "label": "Generate self-contained HTML visualization using D3.js via CDN",
+      "title": "Generate self-contained HTML visualization using D3.js via CDN",
+      "status": "accepted",
+      "filePath": "D:\\Learn\\CS\\github\\DAGADR\\docs\\adrs\\ADR-004-viz-self-contained-html-with-d3.md",
+      "createdAt": "2026-03-09T05:02:37.821Z"
     }
   },
   "edges": {
@@ -194,6 +278,41 @@
       "id": "depends_on:module:tests/scanner.test.ts→module:src/core/ast/scanner.ts",
       "from": "module:tests/scanner.test.ts",
       "to": "module:src/core/ast/scanner.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:tests/impact.test.ts→module:src/core/ast/scanner.ts": {
+      "id": "depends_on:module:tests/impact.test.ts→module:src/core/ast/scanner.ts",
+      "from": "module:tests/impact.test.ts",
+      "to": "module:src/core/ast/scanner.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:tests/impact.test.ts→module:src/core/dag/adr-parser.ts": {
+      "id": "depends_on:module:tests/impact.test.ts→module:src/core/dag/adr-parser.ts",
+      "from": "module:tests/impact.test.ts",
+      "to": "module:src/core/dag/adr-parser.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:tests/impact.test.ts→module:src/core/dag/builder.ts": {
+      "id": "depends_on:module:tests/impact.test.ts→module:src/core/dag/builder.ts",
+      "from": "module:tests/impact.test.ts",
+      "to": "module:src/core/dag/builder.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:tests/impact.test.ts→module:src/core/dag/impact.ts": {
+      "id": "depends_on:module:tests/impact.test.ts→module:src/core/dag/impact.ts",
+      "from": "module:tests/impact.test.ts",
+      "to": "module:src/core/dag/impact.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:tests/impact.test.ts→module:src/types/graph.ts": {
+      "id": "depends_on:module:tests/impact.test.ts→module:src/types/graph.ts",
+      "from": "module:tests/impact.test.ts",
+      "to": "module:src/types/graph.ts",
       "kind": "depends_on",
       "certainty": "certain"
     },
@@ -215,6 +334,13 @@
       "id": "depends_on:module:tests/builder.test.ts→module:src/core/dag/builder.ts",
       "from": "module:tests/builder.test.ts",
       "to": "module:src/core/dag/builder.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:tests/builder.test.ts→module:src/types/graph.ts": {
+      "id": "depends_on:module:tests/builder.test.ts→module:src/types/graph.ts",
+      "from": "module:tests/builder.test.ts",
+      "to": "module:src/types/graph.ts",
       "kind": "depends_on",
       "certainty": "certain"
     },
@@ -253,9 +379,37 @@
       "kind": "depends_on",
       "certainty": "certain"
     },
+    "depends_on:module:src/cli/index.ts→module:src/core/dag/impact.ts": {
+      "id": "depends_on:module:src/cli/index.ts→module:src/core/dag/impact.ts",
+      "from": "module:src/cli/index.ts",
+      "to": "module:src/core/dag/impact.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/cli/index.ts→module:src/core/viz/html-generator.ts": {
+      "id": "depends_on:module:src/cli/index.ts→module:src/core/viz/html-generator.ts",
+      "from": "module:src/cli/index.ts",
+      "to": "module:src/core/viz/html-generator.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/core/viz/html-generator.ts→module:src/types/graph.ts": {
+      "id": "depends_on:module:src/core/viz/html-generator.ts→module:src/types/graph.ts",
+      "from": "module:src/core/viz/html-generator.ts",
+      "to": "module:src/types/graph.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
     "depends_on:module:src/core/dag/store.ts→module:src/types/graph.ts": {
       "id": "depends_on:module:src/core/dag/store.ts→module:src/types/graph.ts",
       "from": "module:src/core/dag/store.ts",
+      "to": "module:src/types/graph.ts",
+      "kind": "depends_on",
+      "certainty": "certain"
+    },
+    "depends_on:module:src/core/dag/impact.ts→module:src/types/graph.ts": {
+      "id": "depends_on:module:src/core/dag/impact.ts→module:src/types/graph.ts",
+      "from": "module:src/core/dag/impact.ts",
       "to": "module:src/types/graph.ts",
       "kind": "depends_on",
       "certainty": "certain"
@@ -309,6 +463,13 @@
       "kind": "implements",
       "certainty": "certain"
     },
+    "implements:ADR-001→module:src/core/dag/impact.ts": {
+      "id": "implements:ADR-001→module:src/core/dag/impact.ts",
+      "from": "ADR-001",
+      "to": "module:src/core/dag/impact.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
     "implements:ADR-001→module:src/core/dag/builder.ts": {
       "id": "implements:ADR-001→module:src/core/dag/builder.ts",
       "from": "ADR-001",
@@ -337,6 +498,13 @@
       "kind": "implements",
       "certainty": "certain"
     },
+    "implements:ADR-002→module:src/core/dag/impact.ts": {
+      "id": "implements:ADR-002→module:src/core/dag/impact.ts",
+      "from": "ADR-002",
+      "to": "module:src/core/dag/impact.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
     "implements:ADR-002→module:src/core/dag/builder.ts": {
       "id": "implements:ADR-002→module:src/core/dag/builder.ts",
       "from": "ADR-002",
@@ -348,6 +516,34 @@
       "id": "implements:ADR-002→module:src/core/dag/adr-parser.ts",
       "from": "ADR-002",
       "to": "module:src/core/dag/adr-parser.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-003→module:src/core/dag/impact.ts": {
+      "id": "implements:ADR-003→module:src/core/dag/impact.ts",
+      "from": "ADR-003",
+      "to": "module:src/core/dag/impact.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-003→module:src/cli/index.ts": {
+      "id": "implements:ADR-003→module:src/cli/index.ts",
+      "from": "ADR-003",
+      "to": "module:src/cli/index.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-004→module:src/core/viz/html-generator.ts": {
+      "id": "implements:ADR-004→module:src/core/viz/html-generator.ts",
+      "from": "ADR-004",
+      "to": "module:src/core/viz/html-generator.ts",
+      "kind": "implements",
+      "certainty": "certain"
+    },
+    "implements:ADR-004→module:src/cli/index.ts": {
+      "id": "implements:ADR-004→module:src/cli/index.ts",
+      "from": "ADR-004",
+      "to": "module:src/cli/index.ts",
       "kind": "implements",
       "certainty": "certain"
     }
