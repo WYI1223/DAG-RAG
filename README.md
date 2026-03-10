@@ -111,6 +111,42 @@ npx ligare init
 
 **Requirements:** Node.js 18+, TypeScript project (Python support planned for v0.4)
 
+### LLM Configuration
+
+`ligare init` and `ligare check` use LLM for semantic analysis. Create a `.env` file in your project root:
+
+```bash
+# Required for semantic analysis (init, scan, check)
+LIGARE_ANTHROPIC_KEY=sk-ant-...
+```
+
+Without an API key, `ligare init` still works — it builds the structural DAG from AST analysis, but skips LLM-powered semantic edge inference.
+
+<details>
+<summary>Alternative providers</summary>
+
+```bash
+# AWS Bedrock (uses default AWS credential chain)
+AWS_REGION=us-east-1
+
+# Google Vertex AI
+CLOUD_ML_REGION=us-central1
+ANTHROPIC_VERTEX_PROJECT=my-project
+
+# Anthropic-compatible API (e.g. MiniMax)
+LIGARE_COMPATIBLE_KEY=...
+LIGARE_COMPATIBLE_URL=https://api.minimaxi.com/anthropic
+LIGARE_MODEL=...             # required for compatible providers
+
+# Force a specific provider
+LIGARE_PROVIDER=anthropic    # anthropic | bedrock | vertex | compatible
+
+# Override model (any provider)
+LIGARE_MODEL=claude-sonnet-4-20250514
+```
+
+</details>
+
 ---
 
 ## Quick Start
