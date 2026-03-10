@@ -126,10 +126,14 @@ mkdir -p docs/adrs
 # 3. Check binding health
 ligare status
 
-# 4. Before making a change, check impact
+# 4. Detect drift — are your ADRs still aligned with the code?
+ligare check              # check all bindings
+ligare check --changed    # only check bindings affected by recent git changes
+
+# 5. Before making a change, check impact
 ligare impact src/auth/session.ts
 
-# 5. Visualize the full graph
+# 6. Visualize the full graph
 ligare viz
 ```
 
@@ -234,6 +238,22 @@ This is the **pre-flight check** for AI-assisted coding: run it before handing c
 
 ---
 
+### `ligare check`
+Drift detection — evaluates each ADR↔Module binding using LLM analysis. Requires `LIGARE_ANTHROPIC_KEY`.
+
+```bash
+ligare check                        # check all bindings
+ligare check ADR-009                # check one ADR
+ligare check src/core/semantic/     # check one module
+ligare check --changed              # only bindings affected by git changes
+ligare check --changed --ref HEAD~3 # diff against specific ref
+ligare check --all                  # include previously possibly-related bindings
+```
+
+Each binding gets a verdict: `aligned`, `drifting`, `broken`, `unrelated`, or `possibly_related`.
+
+---
+
 ### `ligare viz`
 Generates an interactive HTML visualization of the Semantic DAG. Opens in your browser.
 
@@ -245,38 +265,50 @@ Nodes are color-coded by status. Edges by certainty. Click any node to see its b
 
 ---
 
-## Git Hook Integration
+## MCP Server — IDE Integration
 
-To trigger semantic snapshot calculation on every commit:
+`ligare` ships an MCP (Model Context Protocol) server so AI-powered IDEs like Claude Code and Cursor can query your DAG directly.
+
+### Setup
 
 ```bash
-ligare install-hook
+# One command to register with Claude Code
+npm run mcp:install
+
+# Or manually
+claude mcp add ligare -- npx ligare-mcp
 ```
 
-This installs a `post-commit` hook that:
-1. Extracts the diff from the latest commit
-2. Identifies affected modules in the DAG
-3. Sends the local subgraph + diff to the semantic layer
-4. Writes a new `SemanticSnapshot` to `.ligare/dag.json`
+### Available Tools
 
-The snapshot is committed on the next `git add .ligare/ && git commit`.
+| Tool | Description | Needs LLM |
+|------|------------|-----------|
+| `ligare_status` | DAG stats, latest snapshot summary | No |
+| `ligare_impact` | Governing ADRs, affected modules, dependency subgraph | No |
+| `ligare_bindings` | All ADR↔Module bindings with last check status | No |
+| `ligare_check` | Run drift detection | Yes |
+
+Read-only tools (`status`, `impact`, `bindings`) are free — no API tokens consumed. They return metadata only; the IDE model reads source files itself when needed.
+
+`ligare_check` requires `LIGARE_ANTHROPIC_KEY` in the environment (set via `.env` or MCP server config).
 
 ---
 
 ## For AI-Assisted Development
 
-`ligare` is designed with AI coding workflows in mind. Before asking an AI assistant to modify a file, run:
+With the MCP server connected, the IDE model can automatically:
+1. Query `ligare_bindings` to find which ADRs govern a file before modifying it
+2. Run `ligare_impact` to understand what other modules would be affected
+3. Trigger `ligare_check --changed` after making changes to verify no drift was introduced
+
+Or manually from the CLI:
 
 ```bash
+# Before a change — understand constraints
 ligare impact src/payments/processor.ts
-```
 
-This outputs the architectural constraints governing that file — which decisions are in force, what they require, and what other parts of the system would be affected by a change. Paste this output into your AI context window.
-
-After the AI makes changes, run:
-
-```bash
-ligare scan && ligare status
+# After a change — verify alignment
+ligare check --changed
 ```
 
 Any binding that has moved to `drifting` or `broken` is a signal that the change either requires a new ADR or needs to be revisited.
@@ -289,24 +321,32 @@ Any binding that has moved to `drifting` or `broken` is a signal that the change
 ligare/
 ├── src/
 │   ├── cli/
-│   │   └── index.ts          # CLI entry point
+│   │   └── index.ts              # CLI entry point
+│   ├── mcp/
+│   │   └── server.ts             # MCP Server for IDE integration
 │   ├── core/
 │   │   ├── ast/
-│   │   │   └── scanner.ts    # TypeScript Compiler API scanner
+│   │   │   └── scanner.ts        # TypeScript Compiler API scanner
 │   │   ├── dag/
-│   │   │   ├── adr-parser.ts # ADR markdown parser
-│   │   │   ├── builder.ts    # DAG assembly
-│   │   │   └── store.ts      # .ligare/dag.json persistence
+│   │   │   ├── adr-parser.ts     # ADR markdown parser
+│   │   │   ├── builder.ts        # DAG assembly
+│   │   │   ├── impact.ts         # Graph traversal for impact analysis
+│   │   │   └── store.ts          # .ligare/dag.json persistence
+│   │   ├── git/
+│   │   │   └── diff.ts           # Git-aware change detection
 │   │   └── semantic/
-│   │       ├── analyzer.ts  # ADR↔Module semantic inference orchestrator
-│   │       ├── client.ts    # Multi-provider LLM client
-│   │       └── prompt.ts    # Prompt construction and response parsing
+│   │       ├── analyzer.ts       # Semantic edge inference orchestrator
+│   │       ├── checker.ts        # Drift detection orchestrator
+│   │       ├── check-prompt.ts   # Check prompt + tool definitions
+│   │       ├── client.ts         # Multi-provider LLM client
+│   │       ├── code-summarizer.ts # ADR-aware code summarization
+│   │       └── prompt.ts         # Analysis prompt construction
 │   └── types/
-│       └── graph.ts          # Core type definitions
+│       └── graph.ts              # Core type definitions
 ├── docs/
-│   └── adrs/                 # This project's own ADRs
+│   └── adrs/                     # This project's own ADRs (029 and counting)
 ├── .ligare/
-│   └── dag.json              # Generated — commit this
+│   └── dag.json                  # Generated — commit this
 ├── package.json
 └── tsconfig.json
 ```
