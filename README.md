@@ -39,9 +39,12 @@ ligare  records  →  why the code is the way it is
 The system maintains a **Semantic DAG** — a directed acyclic graph where:
 
 - **ADR nodes** represent architecture decisions
+- **Ruling nodes** represent individual, testable constraints within an ADR (e.g. "D3 loaded at runtime, not bundled")
 - **Module nodes** represent code files and directories
 - **Concept nodes** represent business domains (e.g. "user authentication", "payment")
-- **Edges** represent relationships: `implements`, `depends_on`, `supersedes`, `affects`, `conflicts`
+- **Edges** represent relationships: `implements`, `depends_on`, `supersedes`, `extends`, `affects`, `contains`
+
+ADRs are append-only — new decisions supersede old ones rather than editing existing records. Since a single ADR may contain multiple rulings, and a later ADR may supersede only *some* of those rulings, the DAG tracks evolution at ruling granularity. Drift detection checks whether each active ruling's **intent** is satisfied by the code, not whether the implementation matches a specific pattern.
 
 Every edge carries a certainty label:
 
@@ -380,7 +383,7 @@ ligare/
 │   └── types/
 │       └── graph.ts              # Core type definitions
 ├── docs/
-│   └── adrs/                     # This project's own ADRs (029 and counting)
+│   └── adrs/                     # This project's own ADRs (030 and counting)
 ├── .ligare/
 │   └── dag.json                  # Generated — commit this
 ├── package.json

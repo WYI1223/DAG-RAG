@@ -70,10 +70,19 @@ A codebase with a complete semantic history becomes a different kind of artifact
 
 - *Which decisions have the most code depending on them?* (architectural load-bearing decisions)
 - *Which decisions have never been superseded?* (stable foundations vs. forgotten constraints)
+- *Which specific ruling within a decision was violated?* (not "ADR-004 is drifting" but "the no-npm-dependency constraint is violated")
 - *What was the architectural state of this system on the day we launched v2?* (historical context for incident analysis)
 - *Which parts of the codebase have the most semantic drift?* (technical debt as a measurable quantity, not a feeling)
 
 These are questions that currently have no answers — not because the information doesn't exist, but because it has never been organized. `ligare` is the infrastructure for organizing it.
+
+### The ADR DAG — decisions as a graph
+
+The "DAG" in the project name refers to the ADR evolution graph itself. ADRs are append-only: once written, they are never modified. New decisions supersede old ones. This naturally forms a directed acyclic graph where edges point forward in time and the graph may fork — a single decision can be partially superseded by multiple later decisions.
+
+But ADRs are not atomic. A single ADR may contain multiple **rulings** — independently testable architectural constraints. A later ADR may supersede only *some* of those rulings while leaving others active. The true unit of architectural tracking is the ruling, not the ADR. This is the granularity at which drift detection becomes precise: not "is this ADR still aligned?" but "is this specific constraint still satisfied?"
+
+For projects at enterprise scale (hundreds of ADRs across monorepos), the rulings snapshot can be paired with retrieval-augmented generation (RAG) — embedding-based search over the ruling corpus to keep context within practical limits while maintaining accuracy.
 
 The further horizon is a world where AI coding assistants are architecturally aware as a baseline — where the context window always includes the relevant constraints, where drift is detected before it is merged, where the gap between intent and implementation is a tracked metric rather than an invisible accumulation.
 

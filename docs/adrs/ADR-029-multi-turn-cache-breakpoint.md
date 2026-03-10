@@ -40,23 +40,23 @@ Turn 3: [system*] [tools*] [user_msg] [asst_1] [tr_1*] [asst_2] [tr_2*] → cach
 `*` = has `cache_control` breakpoint.
 
 ### Code Change
-In `src/core/semantic/client.ts`, the `tool_result` push in the multi-turn loop:
+In `src/core/semantic/client.ts`, the `tool_result` push in the multi-turn loop. Note: `cache_control` cannot be placed directly on `tool_result` content blocks (Anthropic API rejects it). Instead, append a minimal `text` block with the cache breakpoint after all tool results:
 
 ```typescript
 messages.push({
   role: "user",
-  content: toolUseBlocks.map((b: any, i: number) => ({
-    type: "tool_result",
-    tool_use_id: b.id,
-    content: handler({ name: b.name, input: b.input }),
-    ...(i === toolUseBlocks.length - 1
-      ? { cache_control: { type: "ephemeral" } }
-      : {}),
-  })),
+  content: [
+    ...toolUseBlocks.map((b: any) => ({
+      type: "tool_result",
+      tool_use_id: b.id,
+      content: handler({ name: b.name, input: b.input }),
+    })),
+    { type: "text", text: ".", cache_control: { type: "ephemeral" } },
+  ],
 });
 ```
 
-Only the last `tool_result` in each turn gets the breakpoint — this is sufficient since Anthropic caches the entire prefix up to the breakpoint.
+The trailing `text` block with `"."` is semantically inert but provides the cache breakpoint. Anthropic caches the entire prefix up to this breakpoint.
 
 ### What Does NOT Change
 - System prompt and last tool still have `cache_control` (ADR-026)
@@ -70,6 +70,19 @@ For a module with N read_code turns and base prompt size B tokens:
 - **After**: total input ≈ B + small increments (each turn only pays for new content)
 
 Conservative estimate for the 95-binding check run: 40-60% reduction in total input tokens for multi-turn modules, roughly 300-400k tokens saved overall.
+
+### Measured Results
+
+After implementation, a 78-binding check run showed:
+
+| Metric | Before (ADR-026 only) | After (ADR-029) |
+|--------|----------------------|-----------------|
+| Non-cached input | 1,161,879 | 51,633 |
+| Cache read | 143,174 | 999,681 |
+| Total input | 1,305,053 | 1,051,314 |
+| Cache hit rate | 11.0% | 95.1% |
+
+Non-cached input dropped by 95.6% (22×). Estimated cost reduction: ~87%.
 
 ### Breakpoint Limit
 Anthropic allows up to 4 cache breakpoints per request. Current usage:

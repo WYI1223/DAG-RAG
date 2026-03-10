@@ -81,8 +81,34 @@ Current version: **v0.3 — Git Integration & CI**
 
 ---
 
-## v0.4 — Cold Start & Multi-language 🔜
+## v0.4 — Ruling-Level ADR DAG 🔜
 
+**Goal:** Build the true ADR DAG — model decisions at ruling granularity, track supersession, and make check ADR-centric.
+
+**Planned:**
+
+**Ruling extraction (ADR-030)**
+- ADRs decomposed into intent-based rulings: independently verifiable, independently supersedable
+- Each ruling has `intent` (architectural constraint) and `verifiable_by` (what to observe in code)
+- Rulings snapshot: flat list of all active rulings, maintained incrementally
+
+**ADR→ADR evolution graph**
+- Ruling-level `supersedes` and `extends` edges
+- Init processes ADRs chronologically against the rulings snapshot
+- Superseded rulings automatically skipped during check
+
+**ADR-centric check with function granularity**
+- Check grouped by ruling (not by module) — each ruling checked once
+- `read_code` tool at function-level granularity
+- Estimated 10× token reduction vs current code-centric multi-turn approach
+
+**Eval harness (ADR-028)**
+- Golden test sets for ruling extraction accuracy and check verdict accuracy
+- `ligare eval` command for regression testing across prompt/model changes
+
+---
+
+## v0.5 — Cold Start & Multi-language 🔜
 
 **Goal:** Make the tool usable on projects with no existing ADRs. Add Python support.
 
@@ -104,7 +130,7 @@ Current version: **v0.3 — Git Integration & CI**
 
 ---
 
-## v0.5 — Advanced Visualization & IDE Integration 🔜
+## v0.6 — Advanced Visualization & IDE Integration 🔜
 
 **Goal:** Extend the existing visualization and bring it into the IDE.
 
@@ -122,7 +148,7 @@ Current version: **v0.3 — Git Integration & CI**
 
 ---
 
-## v0.6 — Collaboration & Reporting 🔜
+## v0.7 — Collaboration & Reporting 🔜
 
 **Goal:** Make architectural drift a team-level signal, not just a local one.
 
@@ -168,6 +194,8 @@ These are ideas that have been discussed but not yet scheduled. They require mor
 
 **ADR templates and linting** — Guide teams toward writing ADRs that contain enough information for reliable semantic binding. Flag ADRs that are too vague to be meaningfully bound to code.
 
+**RAG retriever for large monorepos** — For projects with 300+ ADRs, the flat rulings snapshot may exceed context limits. A pluggable `RulingRetriever` interface allows swapping the flat snapshot for embedding-based vector search (top-K similar rulings). Core logic remains retriever-agnostic. Deferred until real-world demand justifies the added infra (embedding model + vector store).
+
 ---
 
 ## Contribution Priorities by Phase
@@ -176,8 +204,14 @@ If you want to contribute, here is where effort would have the most impact right
 
 **v0.3 (current — git integration & CI):**
 - GitHub Actions integration: PR-level drift reports
+- MCP server implementation (ADR-027)
 
 **v0.4:**
+- Ruling extraction prompt tuning and eval harness
+- ADR-centric check implementation
+- Testing ruling-level DAG on real projects
+
+**v0.5:**
 - Python language adapter via Tree-sitter
 - `LanguageAdapter` interface design
 - Testing `discover` on projects with zero existing ADRs

@@ -2,7 +2,7 @@
   "version": "1",
   "projectRoot": "D:\\Learn\\CS\\github\\DAGADR",
   "createdAt": "2026-03-10T01:39:41.406Z",
-  "lastUpdatedAt": "2026-03-10T03:16:47.406Z",
+  "lastUpdatedAt": "2026-03-10T04:09:15.279Z",
   "nodes": {
     "module:vitest.config.ts": {
       "id": "module:vitest.config.ts",
@@ -1265,26 +1265,6 @@
       "kind": "affects",
       "certainty": "certain"
     },
-    "affects:ADR-001→module:src/core/dag/impact.ts": {
-      "id": "affects:ADR-001→module:src/core/dag/impact.ts",
-      "from": "ADR-001",
-      "to": "module:src/core/dag/impact.ts",
-      "kind": "affects",
-      "certainty": "certain",
-      "metadata": {
-        "relevance": "possibly_related"
-      }
-    },
-    "affects:ADR-001→module:src/core/dag/builder.ts": {
-      "id": "affects:ADR-001→module:src/core/dag/builder.ts",
-      "from": "ADR-001",
-      "to": "module:src/core/dag/builder.ts",
-      "kind": "affects",
-      "certainty": "certain",
-      "metadata": {
-        "relevance": "possibly_related"
-      }
-    },
     "affects:ADR-003→module:src/core/dag/impact.ts": {
       "id": "affects:ADR-003→module:src/core/dag/impact.ts",
       "from": "ADR-003",
@@ -1782,28 +1762,6 @@
         "reason": "This test file imports 'vitest' (the test framework chosen by ADR-002). The ADR enables testing for the git diff module, so the test file's existence depends on this decision."
       }
     },
-    "affects:ADR-003→module:src/core/dag/builder.ts": {
-      "id": "affects:ADR-003→module:src/core/dag/builder.ts",
-      "from": "ADR-003",
-      "to": "module:src/core/dag/builder.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The impact analysis builds upon the DAG constructed by the builder module. The 'analyzeImpact' function in impact.ts needs the graph produced by buildDAG to perform its traversal operations. Both modules are in src/core/dag/ and work with the same GraphNode types from ../../types/graph.",
-        "relevance": "possibly_related"
-      }
-    },
-    "affects:ADR-003→module:src/types/graph.ts": {
-      "id": "affects:ADR-003→module:src/types/graph.ts",
-      "from": "ADR-003",
-      "to": "module:src/types/graph.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The impact.ts module heavily relies on GraphNode types (ModuleImpact, AdrImpact, ImpactReport). The ADR explicitly requires walking the 'structural DAG' and reporting on nodes and edges, which are defined in graph.ts.",
-        "relevance": "possibly_related"
-      }
-    },
     "implements:ADR-004→module:src/core/viz/html-generator.ts": {
       "id": "implements:ADR-004→module:src/core/viz/html-generator.ts",
       "from": "ADR-004",
@@ -1812,17 +1770,6 @@
       "certainty": "inferred",
       "metadata": {
         "reason": "The ADR explicitly describes generating a self-contained HTML file with D3.js visualization. The module 'html-generator.ts' exports 'generateHTML' which directly implements this decision by serializing DAG data as inline JSON in a complete HTML file, as stated in the Decision section."
-      }
-    },
-    "implements:ADR-005→module:src/core/dag/builder.ts": {
-      "id": "implements:ADR-005→module:src/core/dag/builder.ts",
-      "from": "ADR-005",
-      "to": "module:src/core/dag/builder.ts",
-      "kind": "implements",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The ADR decision requires creating 'external' module nodes for non-relative imports during DAG construction. builder.ts imports scanner.ts (which detects imports) and graph.ts (which defines node types), making it the module responsible for instantiating external package nodes with depends_on edges.",
-        "relevance": "possibly_related"
       }
     },
     "affects:ADR-005→module:src/core/dag/impact.ts": {
@@ -1875,16 +1822,6 @@
       "metadata": {
         "reason": "This module handles the check-time prompt building with AdrBinding. The relevance filtering described in the ADR operates at check time before sending bindings to the LLM, directly influencing how check-prompt constructs messages.",
         "relevance": "possibly_related"
-      }
-    },
-    "affects:ADR-019→module:src/core/dag/builder.ts": {
-      "id": "affects:ADR-019→module:src/core/dag/builder.ts",
-      "from": "ADR-019",
-      "to": "module:src/core/dag/builder.ts",
-      "kind": "affects",
-      "certainty": "inferred",
-      "metadata": {
-        "reason": "The builder creates the DAG during scan/build stage which 'remains complete' per the ADR decision. This module must continue expanding all directory-level affects paths without filtering."
       }
     },
     "implements:ADR-020→module:src/core/dag/adr-parser.ts": {
@@ -3330,6 +3267,637 @@
         }
       ],
       "driftCount": 5
+    },
+    {
+      "commitHash": "cfafdb0f218c78ce7e9464f8893274aa36610452",
+      "timestamp": "2026-03-10T04:09:15.279Z",
+      "bindings": [
+        {
+          "adrId": "ADR-001",
+          "moduleId": "module:src/core/ast/scanner.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The scanner.ts module imports TypeScript (import ts from \"typescript\") and directly uses its Compiler API: ts.createProgram(), ts.SourceFile, ts.parseJsonConfigFileContent, etc. This is the primary AST tool for extracting import/export relationships as required by ADR-001.",
+          "checkedAt": "2026-03-10T03:39:44.897Z"
+        },
+        {
+          "adrId": "ADR-005",
+          "moduleId": "module:src/core/ast/scanner.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The scanProject function explicitly handles external packages in lines ~94-124: it normalizes package names (handling @scope packages), skips Node.js builtins via isNodeBuiltin(), creates external module nodes with language: \"external\" and id prefix \"ext:\", and creates depends_on edges to these external nodes. This directly implements ADR-005's decision to track external package dependencies as nodes.",
+          "checkedAt": "2026-03-10T03:39:44.897Z"
+        },
+        {
+          "adrId": "ADR-001",
+          "moduleId": "module:src/core/dag/impact.ts",
+          "status": "broken",
+          "certainty": "inferred",
+          "reason": "[UNRELATED] ADR-001 mandates using TypeScript Compiler API for building the dependency graph. The impact.ts module does not import or use TypeScript Compiler API—it only imports graph types from \"../../types/graph.js\" and performs graph traversal on an already-built SemanticDAG. This module consumes the output of the structural analysis, not implements it.",
+          "checkedAt": "2026-03-10T03:41:24.932Z"
+        },
+        {
+          "adrId": "ADR-003",
+          "moduleId": "module:src/core/dag/impact.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "ADR-003 requires implementing impact analysis as pure graph traversal without LLM. The code directly implements this: resolveTarget handles file path or ADR ID input, analyzeModule traverses the DAG to find governingAdrs, siblings, dependsOn, and dependedBy; analyzeAdr finds implementedBy, supersedes/conflicts chains, and dependencySubgraph. No LLM dependencies are imported.",
+          "checkedAt": "2026-03-10T03:41:24.932Z"
+        },
+        {
+          "adrId": "ADR-005",
+          "moduleId": "module:src/core/dag/impact.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "ADR-005 requires tracking external packages as DAG nodes so impact analysis can show external dependencies. The analyzeModule function traverses depends_on edges and returns ModuleNode arrays (dependsOn, dependedBy). Since it processes all nodes in the DAG without filtering by language, it correctly includes external package nodes (ext:*) when they exist, fulfilling ADR-005's consequence that \"impact analysis now shows external dependencies.\"",
+          "checkedAt": "2026-03-10T03:41:24.932Z"
+        },
+        {
+          "adrId": "ADR-001",
+          "moduleId": "module:src/core/dag/builder.ts",
+          "status": "broken",
+          "certainty": "inferred",
+          "reason": "[UNRELATED] ADR-001 requires using TypeScript Compiler API for structural analysis. The builder receives ScanResult from the scanner module - it doesn't perform AST scanning itself. The scanner (which uses TypeScript Compiler API) implements this decision, not the builder.",
+          "checkedAt": "2026-03-10T03:42:37.189Z"
+        },
+        {
+          "adrId": "ADR-003",
+          "moduleId": "module:src/core/dag/builder.ts",
+          "status": "broken",
+          "certainty": "inferred",
+          "reason": "[UNRELATED] ADR-003 requires implementing impact analysis as graph traversal. The builder creates the DAG structure via buildDAG() but doesn't perform impact analysis - that functionality would be in a separate impact.ts module.",
+          "checkedAt": "2026-03-10T03:42:37.189Z"
+        },
+        {
+          "adrId": "ADR-005",
+          "moduleId": "module:src/core/dag/builder.ts",
+          "status": "broken",
+          "certainty": "inferred",
+          "reason": "[UNRELATED] ADR-005 requires creating external package nodes in the DAG. The builder receives modules from scanResult (lines 27-30) - it doesn't create module nodes. The scanner module creates nodes (including external ones), the builder only assembles them.",
+          "checkedAt": "2026-03-10T03:42:37.189Z"
+        },
+        {
+          "adrId": "ADR-019",
+          "moduleId": "module:src/core/dag/builder.ts",
+          "status": "broken",
+          "certainty": "inferred",
+          "reason": "[UNRELATED] ADR-019 requires check-time relevance filtering. The builder includes all nodes and edges without any filtering - it builds a complete DAG. Filtering happens at check time in a different module, not in builder.ts.",
+          "checkedAt": "2026-03-10T03:42:37.189Z"
+        },
+        {
+          "adrId": "ADR-020",
+          "moduleId": "module:src/core/dag/builder.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "Builder.ts directly implements the core decision of ADR-020: it creates 'implements' edges from frontmatter.implements field (lines 57-66) and 'affects' edges from frontmatter.affects field (lines 68-85), with correct certainty: 'certain' for both.",
+          "checkedAt": "2026-03-10T03:42:37.189Z"
+        },
+        {
+          "adrId": "ADR-020",
+          "moduleId": "module:src/core/dag/builder.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "Builder.ts directly implements the core decision of ADR-020: it creates 'implements' edges from frontmatter.implements field (lines 57-66) and 'affects' edges from frontmatter.affects field (lines 68-85), with correct certainty: 'certain' for both.",
+          "checkedAt": "2026-03-10T03:42:37.189Z"
+        },
+        {
+          "adrId": "ADR-003",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The `impact` command uses `analyzeImpact` from `../core/dag/impact` to traverse the DAG and report governing ADRs, sibling modules, dependencies - all without LLM. Matches ADR-003's \"pure graph traversal\" requirement.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-004",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The `viz` command uses `generateHTML` from `../core/viz/html-generator` to produce a self-contained HTML file with D3.js loaded via CDN. The code imports `html-generator` and calls it with `dag`, producing a single output file.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-009",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The CLI uses `createSemanticClient()` and `analyzeSemantics()` during init/scan for semantic edge inference. This delegates to the semantic layer which implements direct Anthropic API integration per ADR-009. The init command shows \"Analyzing semantic relationships\" and graceful skipping when no credentials are found.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-010",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The CLI calls `createSemanticClient()` and displays provider label (Anthropic API, AWS Bedrock, Google Vertex AI, Compatible API). Progress callbacks show `tokensPerSec` during init/scan. This aligns with ADR-010's multi-provider switching and progress reporting.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-012",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "Init/scan commands display token counts (input/output) and calculate avg tok/s: `Math.round((semResult.totalOutputTokens / semResult.totalDurationMs) * 1000)`. Progress callbacks show real-time tok/s. Summary includes both input and output token counts.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-013",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The CLI implements `--verbose` flag in init/scan commands that passes verboseStream to analyzeSemantics. The viz command triggers HTML generation with D3. The thinking-block fix and tooltip are handled in downstream modules (semantic client and html-generator), while CLI correctly provides verbose mode and visualization trigger.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-014",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The CLI imports `dotenv/config` at the module entry point, enabling automatic .env loading. The `--verbose` option in init/scan creates a verbose log file via `createVerboseLog()` and opens it in editor after completion. Truncation detection is handled in the semantic client layer.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-015",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The CLI implements --verbose flag that passes verboseStream to analyzeSemantics for thinking block extraction. Progress callbacks show tok/s during analysis. The init command displays running tok/s in spinner. Both align with ADR-015's requirements.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-017",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The CLI implements the `check` command: `.command(\"check [target]\")` with description \"Check ADR↔Module bindings for drift (requires LLM)\". It accepts optional target (ADR or module), uses checkDrift for evaluation, and outputs aligned/drifting/broken status with reasons. Matches ADR-017's drift detection command.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-019",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The check command implements check-time filtering via `--all` flag to include possibly-related bindings. The code shows `checkAll: opts.all` passed to checkDrift. Low-relevance bindings are skipped by default and checked only with --all flag. This matches ADR-019's check-time filtering strategy.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-021",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The check command output displays three tiers: unrelated (gray ✖), possibly related (cyan ?), and related (normal status). It applies DAG mutations - removes unrelated edges from dag.json and marks possibly_related in edge metadata. This matches ADR-021's three-tier classification.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-022",
+          "moduleId": "module:src/cli/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The check command delegates to checkDrift function, passing the full dag and adrs array. While the CLI displays results as \"ADR ↔ module\" pairs, the internal grouping (module-centric vs ADR-centric) is handled by checkDrift. The function receives all ADRs and can group bindings by module for batch LLM calls per ADR-022's code-centric approach.",
+          "checkedAt": "2026-03-10T03:45:27.724Z"
+        },
+        {
+          "adrId": "ADR-004",
+          "moduleId": "module:src/core/viz/html-generator.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The generateHTML function directly implements the D3.js visualization - it creates the HTML template string with D3.js CDN import, constructs the force-directed graph using d3.forceSimulation, and outputs a complete self-contained HTML file. No delegation to other modules.",
+          "checkedAt": "2026-03-10T03:47:58.873Z"
+        },
+        {
+          "adrId": "ADR-004",
+          "moduleId": "module:src/core/viz/html-generator.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The generateHTML function directly implements the D3.js visualization - it creates the HTML template string with D3.js CDN import, constructs the force-directed graph using d3.forceSimulation, and outputs a complete self-contained HTML file. No delegation to other modules.",
+          "checkedAt": "2026-03-10T03:47:58.873Z"
+        },
+        {
+          "adrId": "ADR-005",
+          "moduleId": "module:src/core/viz/html-generator.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The code handles external package nodes via the `language === \"external\"` check in getNodeColor (returns blue \"#79c0ff\"), getNodeRadius (returns smaller 6px), and clusterForce (excludes externals from clustering with `if (d.language === \"external\") return;`). The prepareGraphData function maps `n.language` from the module node to the visualization.",
+          "checkedAt": "2026-03-10T03:47:58.873Z"
+        },
+        {
+          "adrId": "ADR-006",
+          "moduleId": "module:src/core/viz/html-generator.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The code implements directory grouping: getGroup() extracts directory paths, clusterForce() nudges same-group nodes together, updateHulls() draws convex hulls around groups. External nodes are excluded from clustering (`if (d.language === \"external\") return;`). Features include: dir-layout-mode toggle for grid/treemap layout, dir-label-mode for directory labels, and hide-externals toggle.",
+          "checkedAt": "2026-03-10T03:47:58.873Z"
+        },
+        {
+          "adrId": "ADR-007",
+          "moduleId": "module:src/core/viz/html-generator.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The computeDirLayout function uses d3.treemap() to create nested rectangles representing directory hierarchy. It builds a trie from directory groups, converts to d3.hierarchy, and lays out with squarified treemap. Area is proportional to node count. External packages are placed in a dedicated strip at the bottom (lines ~112-128 in computeDirLayout).",
+          "checkedAt": "2026-03-10T03:47:58.873Z"
+        },
+        {
+          "adrId": "ADR-008",
+          "moduleId": "module:src/core/viz/html-generator.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The code implements click-to-inspect: clicking a node shows only connected edges, outgoing edges colored green (#7ee787), incoming orange (#ffa657), unrelated nodes dimmed to 0.15 opacity. In treemap mode (dirLayoutActive), edges are hidden by default. Nodes are arranged in uniform grid within cells (computeDirLayout). Drag is clamped to cell bounds in tick function. Double-click resets position to original grid location.",
+          "checkedAt": "2026-03-10T03:47:58.873Z"
+        },
+        {
+          "adrId": "ADR-013",
+          "moduleId": "module:src/core/viz/html-generator.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The code implements edge tooltips: linkHit creates 12px-wide transparent hit-area lines, and on hover shows tooltip with \"Source → Target\" label, edge kind, certainty (显示 \"inferred (LLM)\" for inferred edges), and reason text. The syncHitVisibility function keeps hit-area visibility in sync with visible edges. Legend includes \"affects\" and \"belongs_to\" checkboxes, \"inferred (LLM)\" dashed line entry, and \"Hover edge for details\" hint.",
+          "checkedAt": "2026-03-10T03:47:58.873Z"
+        },
+        {
+          "adrId": "ADR-003",
+          "moduleId": "module:src/types/graph.ts",
+          "status": "broken",
+          "certainty": "inferred",
+          "reason": "[UNRELATED] This is a pure type-definition file with no implementation logic. ADR-003 requires implementing impact analysis as graph traversal, but this file only defines TypeScript interfaces (GraphNode, GraphEdge, SemanticDAG). Type definitions don't implement features—they merely describe data structures. No code in this file performs graph traversal or impact analysis.",
+          "checkedAt": "2026-03-10T03:49:21.620Z"
+        },
+        {
+          "adrId": "ADR-005",
+          "moduleId": "module:src/types/graph.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The ModuleNode interface includes `language: \"typescript\" | \"python\" | \"external\" | \"unknown\"` which directly supports the ADR-005 decision to track external packages as nodes with an \"external\" language value. The type definition enables but does not implement the feature.",
+          "checkedAt": "2026-03-10T03:49:21.620Z"
+        },
+        {
+          "adrId": "ADR-011",
+          "moduleId": "module:src/types/graph.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The GraphEdge interface includes an optional `confidence?: number` field which ADR-011 specifies should be removed from new inferred edges (though kept for backwards compatibility). The type definition correctly allows confidence to be optional, supporting the ADR's backwards-compatibility requirement.",
+          "checkedAt": "2026-03-10T03:49:21.620Z"
+        },
+        {
+          "adrId": "ADR-021",
+          "moduleId": "module:src/types/graph.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The file defines `Relevance = \"related\" | \"possibly_related\" | \"unrelated\"` and includes it in `EdgeMetadata.relevance`, directly implementing ADR-021's three-tier classification system. The type enables storing relevance data on edges as specified in the ADR.",
+          "checkedAt": "2026-03-10T03:49:21.620Z"
+        },
+        {
+          "adrId": "ADR-009",
+          "moduleId": "module:src/core/semantic/prompt.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module implements ADR-009's module filtering heuristic: it excludes external packages (line 27), uses path-keyword overlap scoring (lines 34-39), boosts modules from frontmatter affects paths (lines 45-50), limits to MAX_MODULES=80 (line 53), and includes existing edges in prompts for edge preservation (lines 77-81). The prompt construction follows the ~4000 token budget target. The module doesn't directly use the Anthropic SDK (that lives in a separate API caller module), but as an \"affects\" binding, the module's behavior is correctly constrained by ADR-009's filtering and preservation decisions.",
+          "checkedAt": "2026-03-10T03:49:54.444Z"
+        },
+        {
+          "adrId": "ADR-011",
+          "moduleId": "module:src/core/semantic/prompt.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module aligns with ADR-011: the InferredEdge type (lines 16-21) does NOT include a confidence field - only kind, from, to, and reason. The buildAnalysisPrompt function includes the instruction \"Only include relationships you are confident about. When in doubt, omit.\" (line 97) and requires the reason to \"cite specific evidence\" (line 91). The parseAnalysisResponse function (lines 110-137) validates InferredEdge objects without any confidence field. This matches ADR-011's decision to remove self-assessed confidence and strengthen evidence-based reasoning.",
+          "checkedAt": "2026-03-10T03:49:54.444Z"
+        },
+        {
+          "adrId": "ADR-016",
+          "moduleId": "module:src/core/semantic/prompt.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module aligns with ADR-016: the moduleToLine function (lines 56-61) includes imports (up to 10) in each module line. The buildAnalysisPrompt function includes the strengthened inference rules: tightened \"implements\" definition requiring direct code changes (lines 85-86), import-verification rule (lines 88-89), barrel/index.ts exclusion (line 87), test file exclusion (line 90), specific evidence requirement in reason field (line 92), and \"when in doubt, omit\" guidance (line 95). This matches ADR-016's two key decisions.",
+          "checkedAt": "2026-03-10T03:49:54.444Z"
+        },
+        {
+          "adrId": "ADR-009",
+          "moduleId": "module:src/core/semantic/index.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module is a barrel file exporting `createSemanticClient` (semantic layer entry point), `analyzeSemantics` (batch inference), and `checkDrift` (edge preservation/drift checking). These align with ADR-009's requirements for Direct Anthropic API integration, batch inference during scan, and the semantic layer functionality. The module's exports form the public API contract constrained by the ADR.",
+          "checkedAt": "2026-03-10T03:50:11.934Z"
+        },
+        {
+          "adrId": "ADR-009",
+          "moduleId": "module:src/core/semantic/client.ts",
+          "status": "drifting",
+          "certainty": "inferred",
+          "reason": "The code implements direct Anthropic API integration with provider auto-detection and graceful degradation (returns null when no credentials). However, it uses LIGARE_ANTHROPIC_KEY and LIGARE_MODEL environment variables instead of ADR_GRAPH_ANTHROPIC_KEY and ADR_GRAPH_MODEL as specified in ADR-009. The model defaults to claude-sonnet-4-20250514 correctly.",
+          "checkedAt": "2026-03-10T03:53:17.940Z"
+        },
+        {
+          "adrId": "ADR-010",
+          "moduleId": "module:src/core/semantic/client.ts",
+          "status": "drifting",
+          "certainty": "inferred",
+          "reason": "The code implements multi-provider switching (Anthropic, Bedrock, Vertex, Compatible) with auto-detection in the correct priority order. The SemanticClient interface includes both analyze() and analyzeWithTools() methods. Progress reporting is handled by the caller (not in this module). Uses LIGARE_PROVIDER and LIGARE_MODEL instead of ADR_GRAPH_PROVIDER and ADR_GRAPH_MODEL.",
+          "checkedAt": "2026-03-10T03:53:17.940Z"
+        },
+        {
+          "adrId": "ADR-012",
+          "moduleId": "module:src/core/semantic/client.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "AnalyzeResult interface correctly includes text, inputTokens, outputTokens, and durationMs fields. The client extracts usage from response.usage and calculates durationMs. However, throughput (tok/s) calculation happens at the caller level, not in this module - which is appropriate. Cache tokens (cacheReadTokens, cacheCreationTokens) are also tracked, extending beyond ADR-012's requirements.",
+          "checkedAt": "2026-03-10T03:53:17.940Z"
+        },
+        {
+          "adrId": "ADR-013",
+          "moduleId": "module:src/core/semantic/client.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The code correctly fixes the thinking-block bug using `response.content.find((b: any) => b.type === \"text\")` instead of `response.content[0]`. Thinking blocks are extracted separately via `response.content.find((b: any) => b.type === \"thinking\")`. The edge tooltip/visualization is handled in the web UI layer, not in this client module.",
+          "checkedAt": "2026-03-10T03:53:17.940Z"
+        },
+        {
+          "adrId": "ADR-014",
+          "moduleId": "module:src/core/semantic/client.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "Truncation detection is correctly implemented: AnalyzeResult includes truncated field, set to true when response.stop_reason === \"max_tokens\". MAX_TOKENS is 4096 as specified. Dotenv loading and verbose file output are handled at the CLI entry point, not in this client module - which is appropriate separation of concerns.",
+          "checkedAt": "2026-03-10T03:53:17.940Z"
+        },
+        {
+          "adrId": "ADR-015",
+          "moduleId": "module:src/core/semantic/client.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "Thinking block extraction is correctly implemented - AnalyzeResult includes optional thinking?: string field, extracted via response.content.find((b: any) => b.type === \"thinking\"). The thinking is included in AnalyzeResult so callers (CLI) can write it to verbose log. Running average tok/s calculation happens at the caller level, not in this client module.",
+          "checkedAt": "2026-03-10T03:53:17.940Z"
+        },
+        {
+          "adrId": "ADR-023",
+          "moduleId": "module:src/core/semantic/client.ts",
+          "status": "drifting",
+          "certainty": "inferred",
+          "reason": "The code implements analyzeWithTools() method with ToolDefinition, ToolCall, and ToolUseResult interfaces. The submit_verdict tool is defined with correct schema (adr_id, status, relevance, reason fields). The multi-turn loop correctly handles tool_use blocks, sends tool_result responses, and continues until stop_reason !== \"tool_use\". Uses LIGARE_* environment variables instead of ADR_GRAPH_*.",
+          "checkedAt": "2026-03-10T03:53:17.940Z"
+        },
+        {
+          "adrId": "ADR-009",
+          "moduleId": "module:src/core/semantic/checker.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "checker.ts uses SemanticClient (imported from ./client) to make LLM inference calls via client.analyzeWithTools(). The SemanticClient wraps the direct Anthropic API per ADR-009's requirement to use @anthropic-ai/sdk with API key from environment variable.",
+          "checkedAt": "2026-03-10T04:02:30.733Z"
+        },
+        {
+          "adrId": "ADR-017",
+          "moduleId": "module:src/core/semantic/checker.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "checker.ts implements the core drift detection mechanism from ADR-017. The checkDrift function collects bindings from the DAG, sends ADR+code to LLM, and returns aligned/drifting/broken statuses. The interface supports filterAdr, filterModule, and checkAll options matching ADR-017's CLI interface.",
+          "checkedAt": "2026-03-10T04:02:30.733Z"
+        },
+        {
+          "adrId": "ADR-018",
+          "moduleId": "module:src/core/semantic/checker.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "ADR-018 binding is \"implements\" requiring direct implementation. checker.ts delegates to code-summarizer.ts (imports readCodeBlock) rather than directly implementing the three-stage pipeline. However, ADR-024 explicitly evolved this to \"On-demand code reading via read_code tool (Phase 2)\" - replacing pre-loaded summarization. checker.ts implements ADR-024's pattern (overview + read_code tool + toolHandler). Per ADR evolution rule: when code aligns with a later ADR that explicitly changes an aspect, evaluate earlier ADR as \"aligned\" (intentional evolution). ADR-024 explicitly changes this approach, so ADR-018 is aligned.",
+          "checkedAt": "2026-03-10T04:02:30.733Z"
+        },
+        {
+          "adrId": "ADR-019",
+          "moduleId": "module:src/core/semantic/checker.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "checker.ts implements ADR-019's check-time filtering by using the checkAll option to filter bindings. Lines 47-50 filter out edges with metadata.relevance === \"possibly_related\" unless checkAll is true, and skippedPreviouslyResolved tracks how many were skipped. This matches ADR-019's design of filtering at check time.",
+          "checkedAt": "2026-03-10T04:02:30.733Z"
+        },
+        {
+          "adrId": "ADR-021",
+          "moduleId": "module:src/core/semantic/checker.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "checker.ts implements ADR-021's three-tier relevance by tracking unrelated (prunedEdgeIds), possiblyRelated (possiblyRelatedEdgeIds), and related bindings in result counts. Lines 122-137 process drift.relevance values (\"unrelated\", \"possibly_related\", \"related\") and update edges accordingly. The interface uses this classification to determine what to check (line 47-50 filters out possibly_related unless checkAll is true).",
+          "checkedAt": "2026-03-10T04:02:30.733Z"
+        },
+        {
+          "adrId": "ADR-022",
+          "moduleId": "module:src/core/semantic/checker.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "checker.ts implements ADR-022's code-centric batch checking. The groupByModule() function groups bindings by module (lines 130-144), and the main loop processes one LLM call per group with all ADRs that govern that module. This matches ADR-022's restructuring from ADR-centric to module-centric grouping.",
+          "checkedAt": "2026-03-10T04:02:30.733Z"
+        },
+        {
+          "adrId": "ADR-023",
+          "moduleId": "module:src/core/semantic/checker.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "checker.ts implements ADR-023's tool-use pattern. It imports SUBMIT_VERDICT_TOOL from check-prompt.ts, passes it to client.analyzeWithTools() as a tool, parses the tool call results via parseToolCallResults(), and extracts status/relevance/reason from each verdict. This is the core mechanism from ADR-023.",
+          "checkedAt": "2026-03-10T04:02:30.733Z"
+        },
+        {
+          "adrId": "ADR-024",
+          "moduleId": "module:src/core/semantic/checker.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "checker.ts implements ADR-024's on-demand code reading. It imports READ_CODE_TOOL, adds it to tools when codeComplete is false (line 68-72), and defines a toolHandler (lines 76-82) that resolves read_code calls by calling readCodeBlock(filePath, blockName). The multi-turn flow matches ADR-024: initial overview + LLM requests specific blocks via read_code + toolHandler returns full code.",
+          "checkedAt": "2026-03-10T04:02:30.733Z"
+        },
+        {
+          "adrId": "ADR-009",
+          "moduleId": "module:src/core/semantic/analyzer.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module implements batch inference during scan as required: it iterates over active ADRs (filtering out deprecated/superseded), calls the LLM for each, and merges inferred edges with `certainty: \"inferred\"`. It uses the `filterRelevantModules` heuristic for token budget management, and preserves existing edges on re-scan by checking `dag.edges[eid]` before adding. The client abstraction is appropriate since the binding type is \"affects\" (constrained by the decision) rather than \"implements\".",
+          "checkedAt": "2026-03-10T04:04:55.994Z"
+        },
+        {
+          "adrId": "ADR-010",
+          "moduleId": "module:src/core/semantic/analyzer.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module implements progress reporting as required by ADR-010. It defines `AnalysisProgress` interface with `current`, `total`, `adrId`, `status`, `edgesAdded`, and `tokensPerSec`. The `onProgress` callback is invoked before each ADR analysis (status: \"analyzing\"), after success (status: \"done\"), and on failure (status: \"error\"). The client abstraction via `SemanticClient` is appropriate for the \"affects\" binding type.",
+          "checkedAt": "2026-03-10T04:04:55.994Z"
+        },
+        {
+          "adrId": "ADR-011",
+          "moduleId": "module:src/core/semantic/analyzer.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module correctly handles the removal of confidence scoring. Looking at the edge creation code, it sets `certainty: \"inferred\"` but does NOT set any `confidence` field on the edge object. The `reason` field is captured from the LLM response (`edge.reason`) and stored in `metadata: { reason: edge.reason }`. No confidence score is used for filtering or sorting.",
+          "checkedAt": "2026-03-10T04:04:55.994Z"
+        },
+        {
+          "adrId": "ADR-012",
+          "moduleId": "module:src/core/semantic/analyzer.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module implements token metrics as required. `SemanticAnalysisResult` includes `totalInputTokens`, `totalOutputTokens`, and `totalDurationMs`. The `AnalysisProgress` interface includes `tokensPerSec` optional field. The code calculates running average tok/s: `Math.round((result.totalOutputTokens / result.totalDurationMs) * 1000)`. The client returns these metrics via the `response` object from `client.analyze(prompt)`. This is aligned with ADR-012.",
+          "checkedAt": "2026-03-10T04:04:55.994Z"
+        },
+        {
+          "adrId": "ADR-014",
+          "moduleId": "module:src/core/semantic/analyzer.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module implements ADR-014 requirements: it accepts `verboseStream` option in `AnalyzeOptions` for controlling where verbose output goes. It checks `response.truncated` and logs \"TRUNCATED\" label in verbose output, and records a warning in `result.errors[]`: `${adr.node.id}: response truncated (hit max_tokens)`. The dotenv loading happens at CLI entry point (outside this module), which is the correct architectural choice.",
+          "checkedAt": "2026-03-10T04:04:55.994Z"
+        },
+        {
+          "adrId": "ADR-015",
+          "moduleId": "module:src/core/semantic/analyzer.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module implements ADR-015 correctly: it accesses `response.thinking` and writes it to verbose log with section header `[${adr.node.id}] thinking`. For tok/s, it calculates a running average across all completed calls (`result.totalOutputTokens / result.totalDurationMs`) and emits it in BOTH the \"analyzing\" callback (using `runningTps` from prior calls) and the \"done\" callback (using the updated average). This ensures tok/s is always visible during the run, not just briefly.",
+          "checkedAt": "2026-03-10T04:04:55.994Z"
+        },
+        {
+          "adrId": "ADR-017",
+          "moduleId": "module:src/core/semantic/check-prompt.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module exports DriftResult interface with status values ('aligned'|'drifting'|'broken') and functions (buildCheckUserMessage, parseToolCallResults) that implement the drift detection mechanism from ADR-017. The system sends ADR text + module source code to LLM for evaluation.",
+          "checkedAt": "2026-03-10T04:06:07.355Z"
+        },
+        {
+          "adrId": "ADR-018",
+          "moduleId": "module:src/core/semantic/check-prompt.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The buildCheckUserMessage function imports and uses buildCodeOverview from './code-summarizer' to create the code section. It includescollapsed block signatures (e.g., 'computeDirLayout — 100 lines') with notes instructing the LLM not to treat collapsed blocks as evidence of absence.",
+          "checkedAt": "2026-03-10T04:06:07.355Z"
+        },
+        {
+          "adrId": "ADR-019",
+          "moduleId": "module:src/core/semantic/check-prompt.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "ADR-019's keyword-based computeRelevance was replaced by ADR-021's three-tier LLM classification. The module uses the three-tier relevance ('related'|'possibly_related'|'unrelated') which supersedes ADR-019's binary filtering. CHECK_SYSTEM_PROMPT confirms this evolution.",
+          "checkedAt": "2026-03-10T04:06:07.355Z"
+        },
+        {
+          "adrId": "ADR-021",
+          "moduleId": "module:src/core/semantic/check-prompt.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "DriftResult interface includes relevance field with three tiers. VALID_RELEVANCE set enforces 'related'|'possibly_related'|'unrelated'. parseToolCallResults validates against this set. SUBMIT_VERDICT_TOOL requires relevance in its input_schema - directly implements three-tier classification.",
+          "checkedAt": "2026-03-10T04:06:07.355Z"
+        },
+        {
+          "adrId": "ADR-022",
+          "moduleId": "module:src/core/semantic/check-prompt.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "buildCheckUserMessage takes a ModuleNode and AdrBinding[] array, grouping all ADRs for one module into a single user message. It calculates perAdrBudget and truncates ADR bodies to fit within TOTAL_ADR_BUDGET (20000), implementing code-centric batching.",
+          "checkedAt": "2026-03-10T04:06:07.355Z"
+        },
+        {
+          "adrId": "ADR-023",
+          "moduleId": "module:src/core/semantic/check-prompt.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "SUBMIT_VERDICT_TOOL has exact schema from ADR-023: adr_id, status (enum), relevance (enum), reason. CHECK_SYSTEM_PROMPT is cleanly separated from user data. parseToolCallResults extracts verdicts from tool_use blocks - implements Phase 1 structured output via tool-use.",
+          "checkedAt": "2026-03-10T04:06:07.355Z"
+        },
+        {
+          "adrId": "ADR-024",
+          "moduleId": "module:src/core/semantic/check-prompt.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "buildCheckUserMessage uses buildCodeOverview to create skeleton with block signatures (no bodies), includes note about collapsed blocks and read_code tool. READ_CODE_TOOL has exact schema from ADR-024 with block_name parameter. CHECK_SYSTEM_PROMPT instructs LLM to use read_code before judging collapsed blocks.",
+          "checkedAt": "2026-03-10T04:06:07.355Z"
+        },
+        {
+          "adrId": "ADR-018",
+          "moduleId": "module:src/core/semantic/code-summarizer.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The code-summarizer.ts module directly implements ADR-018's three-stage pipeline: (1) extractKeywords function extracts title words, backtick terms, and quoted identifiers; (2) splitIntoBlocks splits code at indent-0 boundaries with imports detection; (3) scoreBlocks implements IDF-weighted scoring and summarizeForCheck allocates budget to include imports first, then highest-scoring blocks, collapsing others to signatures.",
+          "checkedAt": "2026-03-10T04:07:03.285Z"
+        },
+        {
+          "adrId": "ADR-019",
+          "moduleId": "module:src/core/semantic/code-summarizer.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "ADR-019 explicitly reuses extractKeywords from this module for check-time relevance filtering. The ADR states: \"compute a quick keyword relevance score (reusing extractKeywords from ADR-018's code-summarizer)\". While the filtering logic itself lives in checker.ts, this module provides the essential extractKeywords function that ADR-019 specifies as the mechanism for computing keyword relevance scores at check time.",
+          "checkedAt": "2026-03-10T04:07:03.285Z"
+        },
+        {
+          "adrId": "ADR-024",
+          "moduleId": "module:src/core/semantic/code-summarizer.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The module implements ADR-024's Phase 2 requirements: (1) buildCodeOverview returns imports in full + block signatures (one-liners with line counts) for large files, with small file optimization (under 6000 chars returns full code); (2) readCodeBlock accepts a block name and returns the full block body; (3) reuses existing splitIntoBlocks as specified. The CodeOverview interface has text and isComplete fields matching ADR-024's design.",
+          "checkedAt": "2026-03-10T04:07:03.285Z"
+        },
+        {
+          "adrId": "ADR-020",
+          "moduleId": "module:src/core/dag/adr-parser.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The AdrFrontmatter interface includes `implements?: string[]` field (line 27), and the parseFrontmatter function parses array values for the `implements` key. This directly implements the ADR-020 decision to have a separate `implements` field that creates `implements` edges.",
+          "checkedAt": "2026-03-10T04:07:34.506Z"
+        },
+        {
+          "adrId": "ADR-020",
+          "moduleId": "module:src/core/dag/adr-parser.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The AdrFrontmatter interface includes `implements?: string[]` field (line 27), and the parseFrontmatter function parses array values for the `implements` key. This directly implements the ADR-020 decision to have a separate `implements` field that creates `implements` edges.",
+          "checkedAt": "2026-03-10T04:07:34.506Z"
+        },
+        {
+          "adrId": "ADR-002",
+          "moduleId": "module:vitest.config.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The vitest.config.ts file directly implements Vitest by importing from \"vitest/config\" and using defineConfig to configure the test framework with testTimeout settings. This configuration file is the setup for Vitest as required by ADR-002.",
+          "checkedAt": "2026-03-10T04:07:43.737Z"
+        },
+        {
+          "adrId": "ADR-002",
+          "moduleId": "module:tests/semantic.test.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The test file imports `describe`, `it`, `expect`, and `beforeAll` from \"vitest\" (line 1 of imports). This directly implements the ADR-002 decision to \"Use Vitest as the test framework\" — the module uses vitest as its testing framework.",
+          "checkedAt": "2026-03-10T04:08:03.397Z"
+        },
+        {
+          "adrId": "ADR-002",
+          "moduleId": "module:tests/scanner.test.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The test file imports and uses Vitest APIs (describe, it, expect, beforeAll) directly, matching ADR-002's decision to use Vitest as the test framework. This is a test file that directly implements the framework choice.",
+          "checkedAt": "2026-03-10T04:08:13.401Z"
+        },
+        {
+          "adrId": "ADR-002",
+          "moduleId": "module:tests/builder.test.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The test file imports `describe`, `it`, `expect`, and `beforeAll` directly from \"vitest\" (line 1). This directly implements the ADR-002 decision to use Vitest as the test framework. The module is a test file that uses Vitest's API.",
+          "checkedAt": "2026-03-10T04:08:41.998Z"
+        },
+        {
+          "adrId": "ADR-002",
+          "moduleId": "module:tests/adr-parser.test.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The test file directly imports and uses Vitest's API (`describe`, `it`, `expect` from \"vitest\"), which aligns with ADR-002's decision to use Vitest as the test framework. This is a test module that implements the framework choice.",
+          "checkedAt": "2026-03-10T04:08:52.243Z"
+        },
+        {
+          "adrId": "ADR-002",
+          "moduleId": "module:tests/impact.test.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The test file imports and uses Vitest's API (`describe`, `it`, `expect`, `beforeAll` from \"vitest\"), directly implementing ADR-002's decision to use Vitest as the test framework.",
+          "checkedAt": "2026-03-10T04:09:00.597Z"
+        },
+        {
+          "adrId": "ADR-002",
+          "moduleId": "module:tests/git-diff.test.ts",
+          "status": "aligned",
+          "certainty": "inferred",
+          "reason": "The test file imports and uses Vitest's API directly: `import { describe, it, expect } from \"vitest\";`. These are the exact imports and functions specified by ADR-002's decision to use Vitest as the test framework.",
+          "checkedAt": "2026-03-10T04:09:15.148Z"
+        }
+      ],
+      "driftCount": 3
     }
   ]
 }

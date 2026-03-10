@@ -165,14 +165,14 @@ function buildClient(
         messages.push({ role: "assistant", content: response.content });
         messages.push({
           role: "user",
-          content: toolUseBlocks.map((b: any, i: number) => ({
-            type: "tool_result",
-            tool_use_id: b.id,
-            content: handler({ name: b.name, input: b.input }),
-            ...(i === toolUseBlocks.length - 1
-              ? { cache_control: { type: "ephemeral" } }
-              : {}),
-          })),
+          content: [
+            ...toolUseBlocks.map((b: any) => ({
+              type: "tool_result",
+              tool_use_id: b.id,
+              content: handler({ name: b.name, input: b.input }),
+            })),
+            { type: "text", text: ".", cache_control: { type: "ephemeral" } },
+          ],
         });
       }
 
