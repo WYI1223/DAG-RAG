@@ -26,14 +26,50 @@ export interface AnalyzeResult {
   thinking?: string;
   inputTokens: number;
   outputTokens: number;
+  cacheReadTokens: number;
+  cacheCreationTokens: number;
   durationMs: number;
   /** true when the response was truncated (hit max_tokens) */
   truncated: boolean;
 }
 
+export interface ToolDefinition {
+  name: string;
+  description: string;
+  input_schema: Record<string, unknown>;
+}
+
+export interface ToolCall {
+  name: string;
+  input: Record<string, unknown>;
+}
+
+export interface ToolUseResult {
+  toolCalls: ToolCall[];
+  thinking?: string;
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheCreationTokens: number;
+  durationMs: number;
+  truncated: boolean;
+}
+
+/**
+ * Handler for resolving tool calls. Given a tool call, returns the result string.
+ * If not provided, all tool calls are acknowledged with "Recorded.".
+ */
+export type ToolHandler = (call: ToolCall) => string;
+
 export interface SemanticClient {
   provider: ProviderKind;
   analyze(prompt: string): Promise<AnalyzeResult>;
+  analyzeWithTools(opts: {
+    system: string;
+    userMessage: string;
+    tools: ToolDefinition[];
+    toolHandler?: ToolHandler;
+  }): Promise<ToolUseResult>;
 }
 
 function buildClient(
@@ -48,7 +84,7 @@ function buildClient(
       const response = await messenger.messages.create({
         model,
         max_tokens: MAX_TOKENS,
-        system: SYSTEM_PROMPT,
+        system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
         messages: [{ role: "user", content: prompt }],
       });
       const durationMs = Date.now() - start;
@@ -63,7 +99,91 @@ function buildClient(
         thinking,
         inputTokens: response.usage?.input_tokens ?? 0,
         outputTokens: response.usage?.output_tokens ?? 0,
+        cacheReadTokens: response.usage?.cache_read_input_tokens ?? 0,
+        cacheCreationTokens: response.usage?.cache_creation_input_tokens ?? 0,
         durationMs,
+        truncated,
+      };
+    },
+
+    async analyzeWithTools(opts): Promise<ToolUseResult> {
+      const start = Date.now();
+      const messages: any[] = [{ role: "user", content: opts.userMessage }];
+      const allToolCalls: ToolCall[] = [];
+      let totalIn = 0;
+      let totalOut = 0;
+      let totalCacheRead = 0;
+      let totalCacheCreation = 0;
+      let thinking: string | undefined;
+      let truncated = false;
+
+      // mark system prompt and last tool as cacheable (ADR-026)
+      const cachedSystem = [{ type: "text", text: opts.system, cache_control: { type: "ephemeral" } }];
+      const cachedTools = opts.tools.map((t: any, i: number) =>
+        i === opts.tools.length - 1
+          ? { ...t, cache_control: { type: "ephemeral" } }
+          : t
+      );
+
+      // multi-turn loop: keep going while model wants to use tools
+      for (;;) {
+        const response = await messenger.messages.create({
+          model,
+          max_tokens: MAX_TOKENS,
+          system: cachedSystem,
+          messages,
+          tools: cachedTools,
+        });
+
+        totalIn += response.usage?.input_tokens ?? 0;
+        totalOut += response.usage?.output_tokens ?? 0;
+        totalCacheRead += response.usage?.cache_read_input_tokens ?? 0;
+        totalCacheCreation += response.usage?.cache_creation_input_tokens ?? 0;
+        truncated = response.stop_reason === "max_tokens";
+
+        // extract thinking from first turn
+        if (!thinking) {
+          const tb = response.content.find((b: any) => b.type === "thinking");
+          if (tb) thinking = tb.thinking as string;
+        }
+
+        // collect tool_use blocks
+        const toolUseBlocks = response.content.filter(
+          (b: any) => b.type === "tool_use"
+        );
+        for (const block of toolUseBlocks) {
+          allToolCalls.push({ name: block.name, input: block.input });
+        }
+
+        // if model stopped (end_turn) or no tool calls, we're done
+        if (response.stop_reason !== "tool_use" || toolUseBlocks.length === 0) {
+          break;
+        }
+
+        // send tool_result responses to continue the conversation
+        const handler = opts.toolHandler ?? (() => "Recorded.");
+        messages.push({ role: "assistant", content: response.content });
+        messages.push({
+          role: "user",
+          content: toolUseBlocks.map((b: any, i: number) => ({
+            type: "tool_result",
+            tool_use_id: b.id,
+            content: handler({ name: b.name, input: b.input }),
+            ...(i === toolUseBlocks.length - 1
+              ? { cache_control: { type: "ephemeral" } }
+              : {}),
+          })),
+        });
+      }
+
+      return {
+        toolCalls: allToolCalls,
+        thinking,
+        inputTokens: totalIn,
+        outputTokens: totalOut,
+        cacheReadTokens: totalCacheRead,
+        cacheCreationTokens: totalCacheCreation,
+        durationMs: Date.now() - start,
         truncated,
       };
     },
@@ -74,24 +194,24 @@ function buildClient(
  * Create a semantic client by detecting available credentials.
  *
  * Environment variables:
- *   ADR_GRAPH_ANTHROPIC_KEY  → Anthropic API (direct)
+ *   LIGARE_ANTHROPIC_KEY  → Anthropic API (direct)
  *   AWS_REGION               → AWS Bedrock (uses default AWS credential chain)
  *   CLOUD_ML_REGION +
  *   ANTHROPIC_VERTEX_PROJECT → Google Vertex AI
  *
- *   ADR_GRAPH_COMPATIBLE_KEY  → Anthropic-compatible API (e.g. MiniMax)
- *   ADR_GRAPH_COMPATIBLE_URL → base URL for compatible API (e.g. https://api.minimaxi.com/anthropic)
+ *   LIGARE_COMPATIBLE_KEY  → Anthropic-compatible API (e.g. MiniMax)
+ *   LIGARE_COMPATIBLE_URL → base URL for compatible API (e.g. https://api.minimaxi.com/anthropic)
  *
- *   ADR_GRAPH_MODEL          → override model id for any provider
- *   ADR_GRAPH_PROVIDER       → force a specific provider ("anthropic" | "bedrock" | "vertex" | "compatible")
+ *   LIGARE_MODEL          → override model id for any provider
+ *   LIGARE_PROVIDER       → force a specific provider ("anthropic" | "bedrock" | "vertex" | "compatible")
  */
 export function createSemanticClient(): SemanticClient | null {
-  const forced = process.env.ADR_GRAPH_PROVIDER as ProviderKind | undefined;
-  const modelOverride = process.env.ADR_GRAPH_MODEL;
+  const forced = process.env.LIGARE_PROVIDER as ProviderKind | undefined;
+  const modelOverride = process.env.LIGARE_MODEL;
 
   // forced provider
   if (forced === "anthropic") {
-    const apiKey = process.env.ADR_GRAPH_ANTHROPIC_KEY;
+    const apiKey = process.env.LIGARE_ANTHROPIC_KEY;
     if (!apiKey) return null;
     return buildClient(
       new Anthropic({ apiKey }),
@@ -122,8 +242,8 @@ export function createSemanticClient(): SemanticClient | null {
   }
 
   if (forced === "compatible") {
-    const apiKey = process.env.ADR_GRAPH_COMPATIBLE_KEY;
-    const baseURL = process.env.ADR_GRAPH_COMPATIBLE_URL;
+    const apiKey = process.env.LIGARE_COMPATIBLE_KEY;
+    const baseURL = process.env.LIGARE_COMPATIBLE_URL;
     if (!apiKey || !baseURL) return null;
     if (!modelOverride) return null; // compatible providers require explicit model
     return buildClient(
@@ -134,7 +254,7 @@ export function createSemanticClient(): SemanticClient | null {
   }
 
   // auto-detect: Anthropic → Bedrock → Vertex → Compatible
-  const apiKey = process.env.ADR_GRAPH_ANTHROPIC_KEY;
+  const apiKey = process.env.LIGARE_ANTHROPIC_KEY;
   if (apiKey) {
     return buildClient(
       new Anthropic({ apiKey }),
@@ -162,8 +282,8 @@ export function createSemanticClient(): SemanticClient | null {
     );
   }
 
-  const compatKey = process.env.ADR_GRAPH_COMPATIBLE_KEY;
-  const compatURL = process.env.ADR_GRAPH_COMPATIBLE_URL;
+  const compatKey = process.env.LIGARE_COMPATIBLE_KEY;
+  const compatURL = process.env.LIGARE_COMPATIBLE_URL;
   if (compatKey && compatURL && modelOverride) {
     return buildClient(
       new Anthropic({ apiKey: compatKey, baseURL: compatURL }),

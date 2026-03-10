@@ -61,16 +61,13 @@ export function buildDAG(
       };
     }
 
-    // implements edges (ADR → Module) from affects list
-    // These are declared by the author, so certainty = "certain"
-    for (const affectsPath of frontmatter.affects ?? []) {
-      // resolve affected path to module ids
+    // implements edges (ADR → Module) from frontmatter implements list
+    for (const implPath of frontmatter.implements ?? []) {
       const matchingModules = resolveAffectsToModules(
-        affectsPath,
+        implPath,
         projectRoot,
         scanResult
       );
-
       for (const moduleId of matchingModules) {
         const eid = edgeId(adr.id, moduleId, "implements");
         edges[eid] = {
@@ -78,6 +75,25 @@ export function buildDAG(
           from: adr.id,
           to: moduleId,
           kind: "implements",
+          certainty: "certain",
+        };
+      }
+    }
+
+    // affects edges (ADR → Module) from frontmatter affects list
+    for (const affectsPath of frontmatter.affects ?? []) {
+      const matchingModules = resolveAffectsToModules(
+        affectsPath,
+        projectRoot,
+        scanResult
+      );
+      for (const moduleId of matchingModules) {
+        const eid = edgeId(adr.id, moduleId, "affects");
+        edges[eid] = {
+          id: eid,
+          from: adr.id,
+          to: moduleId,
+          kind: "affects",
           certainty: "certain",
         };
       }
@@ -133,6 +149,7 @@ export interface DAGStats {
   certainEdges: number;
   inferredEdges: number;
   implementsEdges: number;
+  affectsEdges: number;
   dependsOnEdges: number;
 }
 
@@ -149,6 +166,7 @@ export function computeStats(dag: SemanticDAG): DAGStats {
     certainEdges: edges.filter((e) => e.certainty === "certain").length,
     inferredEdges: edges.filter((e) => e.certainty === "inferred").length,
     implementsEdges: edges.filter((e) => e.kind === "implements").length,
+    affectsEdges: edges.filter((e) => e.kind === "affects").length,
     dependsOnEdges: edges.filter((e) => e.kind === "depends_on").length,
   };
 }

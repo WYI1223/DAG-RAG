@@ -230,6 +230,84 @@ function collapseBlock(block: CodeBlock): string {
   return `// ${block.signature} — ${block.lineCount} lines`;
 }
 
+// ---- code overview & on-demand reading (ADR-024) -----------
+
+const SMALL_FILE_THRESHOLD = 6000;
+
+export interface CodeOverview {
+  /** The overview text (imports + block signatures) or full code for small files */
+  text: string;
+  /** Whether the full source was included (small file) */
+  isComplete: boolean;
+}
+
+/**
+ * Build a code overview: imports in full + block signatures only.
+ * For small files (< 6000 chars), returns the full source directly.
+ */
+export function buildCodeOverview(filePath: string): CodeOverview | null {
+  let code: string;
+  try {
+    code = fs.readFileSync(filePath, "utf-8");
+  } catch {
+    return null;
+  }
+
+  if (code.length <= SMALL_FILE_THRESHOLD) {
+    return { text: code, isComplete: true };
+  }
+
+  const blocks = splitIntoBlocks(code);
+  const parts: string[] = [];
+  for (const block of blocks) {
+    if (block.isImports) {
+      parts.push(block.body);
+    } else {
+      parts.push(`// ${block.signature} — ${block.lineCount} lines`);
+    }
+  }
+
+  return { text: parts.join("\n\n"), isComplete: false };
+}
+
+/**
+ * Read a specific code block by name (function name, class name, section label, or "imports").
+ * Matches against block signatures case-insensitively.
+ */
+export function readCodeBlock(filePath: string, blockName: string): string | null {
+  let code: string;
+  try {
+    code = fs.readFileSync(filePath, "utf-8");
+  } catch {
+    return null;
+  }
+
+  const blocks = splitIntoBlocks(code);
+  const query = blockName.toLowerCase();
+
+  // exact match on "imports"
+  if (query === "imports") {
+    const importBlock = blocks.find((b) => b.isImports);
+    return importBlock?.body ?? null;
+  }
+
+  // match against signature (function name, class name, section label)
+  for (const block of blocks) {
+    if (block.signature.toLowerCase().includes(query)) {
+      return block.body;
+    }
+  }
+
+  // fallback: search block bodies for the name as a function/class declaration
+  for (const block of blocks) {
+    if (block.body.toLowerCase().includes(query)) {
+      return block.body;
+    }
+  }
+
+  return null;
+}
+
 /**
  * Summarize a source file with ADR-aware relevance filtering.
  * - Small files (under budget): returned as-is

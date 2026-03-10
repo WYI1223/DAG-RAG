@@ -3,10 +3,10 @@
  * cli/index.ts
  *
  * Commands:
- *   adr-graph init    — cold-start: scan project, build initial DAG
- *   adr-graph scan    — re-scan after code changes, update DAG
- *   adr-graph status  — show current DAG stats and any drift warnings
- *   adr-graph viz     — generate HTML visualization (coming soon)
+ *   ligare init    — cold-start: scan project, build initial DAG
+ *   ligare scan    — re-scan after code changes, update DAG
+ *   ligare status  — show current DAG stats and any drift warnings
+ *   ligare viz     — generate HTML visualization (coming soon)
  */
 
 import "dotenv/config";
@@ -23,12 +23,16 @@ import { loadDAG, saveDAG, ensureGitignoreEntry } from "../core/dag/store.js";
 import { analyzeImpact } from "../core/dag/impact.js";
 import { generateHTML } from "../core/viz/html-generator.js";
 import { createSemanticClient, analyzeSemantics, checkDrift } from "../core/semantic/index.js";
+import { getAffectedModules, getCurrentCommitHash } from "../core/git/diff.js";
+import { SemanticSnapshot } from "../types/graph.js";
 
 /** Create a write stream for verbose output; returns the log path and stream */
-function createVerboseLog(projectRoot: string): { logPath: string; stream: fs.WriteStream } {
-  const dagDir = path.join(projectRoot, ".adr-graph");
+function createVerboseLog(projectRoot: string, command: string): { logPath: string; stream: fs.WriteStream } {
+  const dagDir = path.join(projectRoot, ".ligare");
   if (!fs.existsSync(dagDir)) fs.mkdirSync(dagDir, { recursive: true });
-  const logPath = path.join(dagDir, "verbose.log");
+  const now = new Date();
+  const ts = now.toISOString().replace(/[-:T]/g, "").slice(0, 12); // YYYYMMDDHHmm
+  const logPath = path.join(dagDir, `verbose-${command}-${ts}.log`);
   const stream = fs.createWriteStream(logPath, { flags: "w" });
   return { logPath, stream };
 }
@@ -44,7 +48,7 @@ async function openInEditor(filePath: string) {
 const program = new Command();
 
 program
-  .name("adr-graph")
+  .name("ligare")
   .description("Semantic Git — binds architecture decisions to code")
   .version("0.1.0");
 
@@ -61,7 +65,7 @@ program
     const projectRoot = path.resolve(opts.root);
     const adrDir = path.resolve(projectRoot, opts.adrDir);
 
-    console.log(chalk.bold("\n🔍 adr-graph init\n"));
+    console.log(chalk.bold("\n🔍 ligare init\n"));
     console.log(chalk.dim(`Project root: ${projectRoot}`));
     console.log(chalk.dim(`ADR directory: ${adrDir}\n`));
 
@@ -102,7 +106,7 @@ program
         const providerLabel = { anthropic: "Anthropic API", bedrock: "AWS Bedrock", vertex: "Google Vertex AI", compatible: "Compatible API" }[client.provider];
         const semSpinner = ora(`Analyzing semantic relationships (${providerLabel})...`).start();
         let verboseLog: { logPath: string; stream: fs.WriteStream } | null = null;
-        if (opts.verbose) { verboseLog = createVerboseLog(projectRoot); }
+        if (opts.verbose) { verboseLog = createVerboseLog(projectRoot, "init"); }
         try {
           const semResult = await analyzeSemantics(dag, adrs, client, {
             onProgress: (p) => {
@@ -117,8 +121,11 @@ program
           const avgTps = semResult.totalDurationMs > 0
             ? Math.round((semResult.totalOutputTokens / semResult.totalDurationMs) * 1000)
             : 0;
+          const cacheTag = semResult.totalCacheReadTokens > 0
+            ? `  cache read: ${semResult.totalCacheReadTokens}`
+            : "";
           const tokenInfo = semResult.totalOutputTokens > 0
-            ? `  (${semResult.totalInputTokens} in / ${semResult.totalOutputTokens} out, ${avgTps} tok/s)`
+            ? `  (${semResult.totalInputTokens} in / ${semResult.totalOutputTokens} out, ${avgTps} tok/s${cacheTag})`
             : "";
           semSpinner.succeed(
             chalk.green(`Inferred ${semResult.edgesAdded} semantic edges from ${semResult.adrCount} ADRs`) + chalk.dim(tokenInfo)
@@ -134,7 +141,7 @@ program
           semSpinner.fail(`Semantic analysis failed: ${msg}`);
         }
       } else {
-        console.log(chalk.dim("  Semantic layer skipped — set ADR_GRAPH_ANTHROPIC_KEY for LLM analysis"));
+        console.log(chalk.dim("  Semantic layer skipped — set LIGARE_ANTHROPIC_KEY for LLM analysis"));
       }
     }
 
@@ -146,15 +153,15 @@ program
     console.log(chalk.bold("\n📊 Initial DAG summary:\n"));
     console.log(`  Nodes:  ${stats.totalNodes}  (${stats.adrCount} ADRs, ${stats.moduleCount} modules)`);
     console.log(`  Edges:  ${stats.totalEdges}  (${stats.certainEdges} certain, ${stats.inferredEdges} inferred)`);
-    console.log(`  Bindings (ADR↔Module): ${stats.implementsEdges}`);
+    console.log(`  Bindings: ${stats.implementsEdges} implements, ${stats.affectsEdges} affects`);
     console.log(`  Dependencies (Module→Module): ${stats.dependsOnEdges}`);
 
     if (adrs.length === 0) {
       console.log(chalk.yellow("\n💡 No ADRs found. Create your first one:"));
       console.log(chalk.dim(`   mkdir -p ${opts.adrDir} && touch ${opts.adrDir}/ADR-001-initial-architecture.md`));
-      console.log(chalk.dim("   Then run: adr-graph scan\n"));
+      console.log(chalk.dim("   Then run: ligare scan\n"));
     } else {
-      console.log(chalk.green("\n✅ Ready. Run `adr-graph status` to check for drift.\n"));
+      console.log(chalk.green("\n✅ Ready. Run `ligare status` to check for drift.\n"));
     }
   });
 
@@ -173,11 +180,11 @@ program
 
     const existing = loadDAG(projectRoot);
     if (!existing) {
-      console.log(chalk.yellow("No DAG found. Run `adr-graph init` first."));
+      console.log(chalk.yellow("No DAG found. Run `ligare init` first."));
       process.exit(1);
     }
 
-    console.log(chalk.bold("\n🔄 adr-graph scan\n"));
+    console.log(chalk.bold("\n🔄 ligare scan\n"));
 
     const spinner = ora("Re-scanning project...").start();
     const [scanResult, adrs] = await Promise.all([
@@ -203,7 +210,7 @@ program
       if (client) {
         const providerLabel = { anthropic: "Anthropic API", bedrock: "AWS Bedrock", vertex: "Google Vertex AI", compatible: "Compatible API" }[client.provider];
         let verboseLog: { logPath: string; stream: fs.WriteStream } | null = null;
-        if (opts.verbose) { verboseLog = createVerboseLog(projectRoot); }
+        if (opts.verbose) { verboseLog = createVerboseLog(projectRoot, "scan"); }
         spinner.text = `Analyzing semantic relationships (${providerLabel})...`;
         try {
           const semResult = await analyzeSemantics(dag, adrs, client, {
@@ -254,16 +261,16 @@ program
     const dag = loadDAG(projectRoot);
 
     if (!dag) {
-      console.log(chalk.yellow("No DAG found. Run `adr-graph init` first."));
+      console.log(chalk.yellow("No DAG found. Run `ligare init` first."));
       process.exit(1);
     }
 
     const stats = computeStats(dag);
-    console.log(chalk.bold("\n📊 adr-graph status\n"));
+    console.log(chalk.bold("\n📊 ligare status\n"));
     console.log(`  Last updated: ${dag.lastUpdatedAt}`);
     console.log(`  Nodes:  ${stats.totalNodes}  (${stats.adrCount} ADRs, ${stats.moduleCount} modules, ${stats.conceptCount} concepts)`);
     console.log(`  Edges:  ${stats.totalEdges}  (${stats.certainEdges} certain ✅, ${stats.inferredEdges} inferred ⚠️ )`);
-    console.log(`  ADR↔Module bindings: ${stats.implementsEdges}`);
+    console.log(`  ADR↔Module bindings: ${stats.implementsEdges} implements, ${stats.affectsEdges} affects`);
 
     // show latest snapshot if available
     if (dag.snapshots.length > 0) {
@@ -297,7 +304,7 @@ program
     const dag = loadDAG(projectRoot);
 
     if (!dag) {
-      console.log(chalk.yellow("No DAG found. Run `adr-graph init` first."));
+      console.log(chalk.yellow("No DAG found. Run `ligare init` first."));
       process.exit(1);
     }
 
@@ -404,13 +411,13 @@ program
   .command("viz")
   .description("Generate an interactive HTML visualization of the Semantic DAG")
   .option("-r, --root <path>", "project root", process.cwd())
-  .option("-o, --output <path>", "output file path", "adr-graph.html")
+  .option("-o, --output <path>", "output file path", "ligare.html")
   .action(async (opts) => {
     const projectRoot = path.resolve(opts.root);
     const dag = loadDAG(projectRoot);
 
     if (!dag) {
-      console.log(chalk.yellow("No DAG found. Run `adr-graph init` first."));
+      console.log(chalk.yellow("No DAG found. Run `ligare init` first."));
       process.exit(1);
     }
 
@@ -418,7 +425,7 @@ program
     const outputPath = path.resolve(projectRoot, opts.output);
     fs.writeFileSync(outputPath, html, "utf-8");
 
-    console.log(chalk.bold("\n📊 adr-graph viz\n"));
+    console.log(chalk.bold("\n📊 ligare viz\n"));
     console.log(`  Generated: ${chalk.cyan(outputPath)}`);
 
     // try to open in browser
@@ -443,6 +450,9 @@ program
   .description("Check ADR↔Module bindings for drift (requires LLM)")
   .option("-r, --root <path>", "project root", process.cwd())
   .option("--adr-dir <path>", "ADR directory", "docs/adrs")
+  .option("--all", "check all bindings including previously possibly-related ones")
+  .option("--changed", "only check bindings affected by git changes since last check")
+  .option("--ref <ref>", "git ref to diff against (used with --changed)")
   .option("--verbose", "show raw LLM prompts and responses")
   .action(async (target, opts) => {
     const projectRoot = path.resolve(opts.root);
@@ -450,13 +460,13 @@ program
     const dag = loadDAG(projectRoot);
 
     if (!dag) {
-      console.log(chalk.yellow("No DAG found. Run `adr-graph init` first."));
+      console.log(chalk.yellow("No DAG found. Run `ligare init` first."));
       process.exit(1);
     }
 
     const client = createSemanticClient();
     if (!client) {
-      console.log(chalk.yellow("No LLM credentials found. Set ADR_GRAPH_ANTHROPIC_KEY (or other provider env vars)."));
+      console.log(chalk.yellow("No LLM credentials found. Set LIGARE_ANTHROPIC_KEY (or other provider env vars)."));
       process.exit(1);
     }
 
@@ -473,20 +483,43 @@ program
       : undefined;
 
     const providerLabel = { anthropic: "Anthropic API", bedrock: "AWS Bedrock", vertex: "Google Vertex AI", compatible: "Compatible API" }[client.provider];
-    console.log(chalk.bold("\n🔍 adr-graph check\n"));
+    console.log(chalk.bold("\n🔍 ligare check\n"));
     if (target) {
       console.log(chalk.dim(`  Target: ${target}`));
     }
-    console.log(chalk.dim(`  Provider: ${providerLabel}\n`));
+    console.log(chalk.dim(`  Provider: ${providerLabel}`));
 
+    // --changed: git-aware incremental filtering
+    let filterModuleIds: Set<string> | undefined;
+    if (opts.changed) {
+      try {
+        const diff = getAffectedModules(projectRoot, dag, { userRef: opts.ref });
+        filterModuleIds = diff.affectedModuleIds;
+        console.log(chalk.dim(`  Git ref: ${diff.ref}`));
+        console.log(chalk.dim(`  Changed files: ${diff.changedFiles.length}`));
+        console.log(chalk.dim(`  Affected modules: ${diff.affectedModuleIds.size} (${diff.directModuleCount} from code, ${diff.adrExpandedModuleCount} from ADRs)`));
+        if (diff.affectedModuleIds.size === 0) {
+          console.log(chalk.green("\n  No modules affected by recent changes. Nothing to check.\n"));
+          process.exit(0);
+        }
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        console.log(chalk.yellow(`  --changed failed: ${msg}`));
+        console.log(chalk.dim("  Falling back to full check.\n"));
+      }
+    }
+
+    console.log("");
     const spinner = ora("Checking bindings for drift...").start();
     let verboseLog: { logPath: string; stream: fs.WriteStream } | null = null;
-    if (opts.verbose) { verboseLog = createVerboseLog(projectRoot); }
+    if (opts.verbose) { verboseLog = createVerboseLog(projectRoot, "check"); }
 
     try {
       const result = await checkDrift(dag, adrs, client, {
         filterAdr,
         filterModule,
+        filterModuleIds,
+        checkAll: opts.all,
         onProgress: (p) => {
           const tps = p.tokensPerSec ? `  ${p.tokensPerSec} tok/s` : "";
           spinner.text = `[${p.current}/${p.total}] ${p.adrId} → ${p.moduleId}${tps}`;
@@ -509,17 +542,21 @@ program
       // display results
       console.log(chalk.bold("  Results:\n"));
       for (const b of result.bindings) {
-        const adrNode = dag.nodes[b.adrId];
         const modNode = dag.nodes[b.moduleId];
-        const adrLabel = adrNode?.label ?? b.adrId;
         const modLabel = modNode?.label ?? b.moduleId;
+        const reason = b.reason
+          ?.replace("[UNRELATED] ", "")
+          .replace("[POSSIBLY_RELATED] ", "");
 
-        const isMisbound = b.reason?.startsWith("[MISBOUND]");
-        const reason = isMisbound ? b.reason?.replace("[MISBOUND] ", "") : b.reason;
+        const isUnrelated = b.reason?.startsWith("[UNRELATED]");
+        const isPossiblyRelated = b.reason?.startsWith("[POSSIBLY_RELATED]");
 
-        if (isMisbound) {
-          console.log(chalk.magenta(`  🔗 ${b.adrId} ↔ ${modLabel}`) + chalk.dim("  [misbound]"));
-          console.log(chalk.dim(`     Binding may be incorrect: ${reason}`));
+        if (isUnrelated) {
+          console.log(chalk.gray(`  ✖ ${b.adrId} ↔ ${modLabel}`) + chalk.dim("  [unrelated — removed]"));
+          console.log(chalk.dim(`     ${reason}`));
+        } else if (isPossiblyRelated) {
+          console.log(chalk.cyan(`  ? ${b.adrId} ↔ ${modLabel}`) + chalk.dim("  [possibly related]"));
+          console.log(chalk.dim(`     ${reason}`));
         } else if (b.status === "aligned") {
           console.log(chalk.green(`  ✅ ${b.adrId} ↔ ${modLabel}`) + chalk.dim("  [aligned]"));
         } else if (b.status === "drifting") {
@@ -531,16 +568,69 @@ program
         }
       }
 
+      // apply DAG mutations: remove unrelated edges, mark possibly_related
+      let dagChanged = false;
+      for (const edgeId of result.prunedEdgeIds) {
+        if (dag.edges[edgeId]) {
+          delete dag.edges[edgeId];
+          dagChanged = true;
+        }
+      }
+      for (const edgeId of result.possiblyRelatedEdgeIds) {
+        if (dag.edges[edgeId]) {
+          dag.edges[edgeId].metadata = {
+            ...dag.edges[edgeId].metadata,
+            relevance: "possibly_related",
+          };
+          dagChanged = true;
+        }
+      }
+      // Create semantic snapshot anchored to current commit
+      try {
+        const commitHash = getCurrentCommitHash(projectRoot);
+        const snapshot: SemanticSnapshot = {
+          commitHash,
+          timestamp: new Date().toISOString(),
+          bindings: result.bindings,
+          driftCount: result.drifting + result.broken,
+        };
+        dag.snapshots.push(snapshot);
+        dagChanged = true;
+      } catch {
+        // not a git repo or no commits — skip snapshot
+      }
+
+      if (dagChanged) {
+        dag.lastUpdatedAt = new Date().toISOString();
+        saveDAG(dag, projectRoot);
+      }
+
       // summary
       const avgTps = result.totalDurationMs > 0
         ? Math.round((result.totalOutputTokens / result.totalDurationMs) * 1000)
         : 0;
       console.log(chalk.bold("\n  Summary:"));
       console.log(`    Bindings checked: ${result.bindingsChecked}`);
-      const misboundInfo = result.misbound > 0 ? `  ${chalk.magenta("Misbound")}: ${result.misbound}` : "";
-      console.log(`    ${chalk.green("Aligned")}: ${result.aligned}  ${chalk.yellow("Drifting")}: ${result.drifting}  ${chalk.red("Broken")}: ${result.broken}${misboundInfo}`);
-      console.log(chalk.dim(`    Tokens: ${result.totalInputTokens} in / ${result.totalOutputTokens} out  (${avgTps} tok/s)`));
+      const unrelatedInfo = result.unrelated > 0 ? `  ${chalk.gray("Unrelated")}: ${result.unrelated}` : "";
+      const possiblyInfo = result.possiblyRelated > 0 ? `  ${chalk.cyan("Possibly")}: ${result.possiblyRelated}` : "";
+      console.log(`    ${chalk.green("Aligned")}: ${result.aligned}  ${chalk.yellow("Drifting")}: ${result.drifting}  ${chalk.red("Broken")}: ${result.broken}${unrelatedInfo}${possiblyInfo}`);
+      const cacheInfo = result.totalCacheReadTokens > 0
+        ? `  cache read: ${result.totalCacheReadTokens}`
+        : "";
+      const cacheCreateInfo = result.totalCacheCreationTokens > 0
+        ? `  cache write: ${result.totalCacheCreationTokens}`
+        : "";
+      console.log(chalk.dim(`    Tokens: ${result.totalInputTokens} in / ${result.totalOutputTokens} out  (${avgTps} tok/s)${cacheInfo}${cacheCreateInfo}`));
 
+      if (result.prunedEdgeIds.length > 0) {
+        console.log(chalk.dim(`    ✖ Removed ${result.prunedEdgeIds.length} unrelated bindings from DAG`));
+      }
+      if (result.possiblyRelatedEdgeIds.length > 0) {
+        console.log(chalk.dim(`    ? Marked ${result.possiblyRelatedEdgeIds.length} possibly-related bindings (skipped next time, use --all to include)`));
+      }
+      if (result.skippedPreviouslyResolved > 0) {
+        console.log(chalk.dim(`    ℹ Skipped ${result.skippedPreviouslyResolved} previously resolved bindings (use --all to re-check)`));
+      }
       if (verboseLog) console.log(chalk.dim(`    Verbose log: ${verboseLog.logPath}`));
       if (result.errors.length > 0) {
         console.log(chalk.yellow("\n  Errors:"));

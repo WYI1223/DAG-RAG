@@ -1,5 +1,5 @@
 // ============================================================
-// adr-graph core types
+// ligare core types
 // Every concept in the system maps to one of these types.
 // ============================================================
 
@@ -44,7 +44,7 @@ export type GraphNode = AdrNode | ModuleNode | ConceptNode;
 
 export type EdgeKind =
   | "implements"   // ADR  → Module:  this code implements this decision
-  | "affects"      // ADR  → Concept: this decision affects this business area
+  | "affects"      // ADR  → Module/Concept: this decision constrains this code or area
   | "supersedes"   // ADR  → ADR:     this decision replaces another
   | "depends_on"   // Module → Module: structural import dependency (from AST, certain)
   | "belongs_to"   // Module → Concept: this code belongs to this business domain
@@ -54,6 +54,14 @@ export type EdgeCertainty = "certain" | "inferred";
 // certain  = produced by AST analysis, deterministic
 // inferred = produced by LLM, requires human confirmation
 
+/** Three-tier relevance classification (ADR-021) */
+export type Relevance = "related" | "possibly_related" | "unrelated";
+
+export interface EdgeMetadata extends Record<string, unknown> {
+  relevance?: Relevance;
+  reason?: string;
+}
+
 export interface GraphEdge {
   id: string;
   from: string;       // node id
@@ -62,7 +70,7 @@ export interface GraphEdge {
   certainty: EdgeCertainty;
   confidence?: number;  // 0-1, only when certainty === "inferred"
   confirmedAt?: string; // ISO, set when human confirms an inferred edge
-  metadata?: Record<string, unknown>;
+  metadata?: EdgeMetadata;
 }
 
 // ------ Semantic snapshot -----------------------------------
@@ -75,6 +83,7 @@ export interface SemanticBinding {
   moduleId: string;
   status: BindingStatus;
   certainty: EdgeCertainty;
+  relevance?: Relevance;
   confidence?: number;
   reason?: string;     // human-readable explanation of drift
   checkedAt: string;   // ISO

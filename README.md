@@ -1,8 +1,8 @@
-# adr-graph
+# ligare
 
 > **Semantic Git** — a layer above Git that records not just *what* changed, but *why*.
 
-Most codebases accumulate a silent gap between intent and implementation. Architecture decisions get written down (if at all) in documents that no one reads, while the code drifts quietly away from the original design. `adr-graph` closes that gap by binding Architecture Decision Records (ADRs) directly to the code they govern, building a live DAG that tracks whether your implementation still matches your intent — at every commit.
+Most codebases accumulate a silent gap between intent and implementation. Architecture decisions get written down (if at all) in documents that no one reads, while the code drifts quietly away from the original design. `ligare` closes that gap by binding Architecture Decision Records (ADRs) directly to the code they govern, building a live DAG that tracks whether your implementation still matches your intent — at every commit.
 
 ---
 
@@ -21,11 +21,11 @@ TL's intent → ADR → team member's interpretation → code
 AI assistant → locally reasonable change → globally wrong result
 ```
 
-At every step, meaning is lost. `adr-graph` closes that gap by binding ADRs directly to the code they govern, and detecting the moment implementation diverges from intent.
+At every step, meaning is lost. `ligare` closes that gap by binding ADRs directly to the code they govern, and detecting the moment implementation diverges from intent.
 
 This is not a documentation problem. It's a **semantic drift** problem.
 
-`adr-graph` treats it as one.
+`ligare` treats it as one.
 
 ---
 
@@ -33,7 +33,7 @@ This is not a documentation problem. It's a **semantic drift** problem.
 
 ```
 Git        records  →  what the code looks like
-adr-graph  records  →  why the code is the way it is
+ligare  records  →  why the code is the way it is
 ```
 
 The system maintains a **Semantic DAG** — a directed acyclic graph where:
@@ -58,7 +58,7 @@ The system **never mixes these two layers**. If a conclusion is structural, it i
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    adr-graph CLI                        │
+│                    ligare CLI                        │
 │         init │ scan │ status │ impact │ viz             │
 └───────────────────┬─────────────────────────────────────┘
                     │
@@ -82,7 +82,7 @@ The system **never mixes these two layers**. If a conclusion is structural, it i
                │
     ┌──────────▼──────────┐
     │    Semantic DAG     │
-    │  .adr-graph/dag.json│
+    │  .ligare/dag.json│
     │  (versioned w/ git) │
     └─────────────────────┘
 ```
@@ -91,7 +91,7 @@ The system **never mixes these two layers**. If a conclusion is structural, it i
 
 The LLM is only as good as the context it receives. By building a precise structural skeleton first — file dependencies, interface implementations, call chains — we give the LLM a compressed, accurate map of the codebase instead of raw source code. This makes semantic analysis both cheaper (fewer tokens) and more reliable (less hallucination).
 
-### Why the DAG lives in `.adr-graph/`
+### Why the DAG lives in `.ligare/`
 
 The semantic history of your project should be versioned alongside the code. Every `git checkout` gives you not just the code at that point in time, but the full semantic state: which decisions were active, which bindings were aligned, which were already drifting.
 
@@ -100,13 +100,13 @@ The semantic history of your project should be versioned alongside the code. Eve
 ## Installation
 
 ```bash
-npm install -g adr-graph
+npm install -g ligare
 ```
 
 Or use without installing:
 
 ```bash
-npx adr-graph init
+npx ligare init
 ```
 
 **Requirements:** Node.js 18+, TypeScript project (Python support planned for v0.4)
@@ -117,27 +117,27 @@ npx adr-graph init
 
 ```bash
 # 1. Initialize — scans your project and builds the initial DAG
-adr-graph init
+ligare init
 
-# 2. Write your first ADR (or let adr-graph suggest one)
+# 2. Write your first ADR (or let ligare suggest one)
 mkdir -p docs/adrs
 # see ADR format below
 
 # 3. Check binding health
-adr-graph status
+ligare status
 
 # 4. Before making a change, check impact
-adr-graph impact src/auth/session.ts
+ligare impact src/auth/session.ts
 
 # 5. Visualize the full graph
-adr-graph viz
+ligare viz
 ```
 
 ---
 
 ## ADR Format
 
-`adr-graph` supports standard MADR and Nygard formats with an optional frontmatter block for explicit bindings.
+`ligare` supports standard MADR and Nygard formats with an optional frontmatter block for explicit bindings.
 
 ```markdown
 ---
@@ -177,36 +177,36 @@ The `affects` field is the explicit binding layer — deterministic, no LLM requ
 
 ## Commands
 
-### `adr-graph init`
+### `ligare init`
 Cold-start scan. Runs AST analysis across the entire project, parses all ADR files, and builds the initial Semantic DAG.
 
 ```bash
-adr-graph init [--root <path>] [--adr-dir <path>]
+ligare init [--root <path>] [--adr-dir <path>]
 ```
 
-Produces `.adr-graph/dag.json`. Add this file to git.
+Produces `.ligare/dag.json`. Add this file to git.
 
 ---
 
-### `adr-graph scan`
+### `ligare scan`
 Incremental re-scan after code changes. Preserves previously confirmed inferred edges. Run this after significant refactors or when adding new modules.
 
 ```bash
-adr-graph scan [--root <path>]
+ligare scan [--root <path>]
 ```
 
 ---
 
-### `adr-graph status`
+### `ligare status`
 Shows the current state of all ADR↔Module bindings, flagging any drift or broken bindings.
 
 ```bash
-adr-graph status
+ligare status
 ```
 
 Output example:
 ```
-📊 adr-graph status
+📊 ligare status
 
   Last updated: 2024-03-08T10:22:00Z
   Nodes:  47  (8 ADRs, 39 modules)
@@ -222,23 +222,23 @@ Output example:
 
 ---
 
-### `adr-graph impact <file-or-adr>`
+### `ligare impact <file-or-adr>`
 Before making a change, understand what decisions govern a file and what other modules would be affected.
 
 ```bash
-adr-graph impact src/auth/session.ts
-adr-graph impact ADR-012
+ligare impact src/auth/session.ts
+ligare impact ADR-012
 ```
 
 This is the **pre-flight check** for AI-assisted coding: run it before handing context to an AI assistant to ensure the AI has the relevant architectural constraints.
 
 ---
 
-### `adr-graph viz`
+### `ligare viz`
 Generates an interactive HTML visualization of the Semantic DAG. Opens in your browser.
 
 ```bash
-adr-graph viz [--output graph.html]
+ligare viz [--output graph.html]
 ```
 
 Nodes are color-coded by status. Edges by certainty. Click any node to see its bindings, history, and linked source files.
@@ -250,25 +250,25 @@ Nodes are color-coded by status. Edges by certainty. Click any node to see its b
 To trigger semantic snapshot calculation on every commit:
 
 ```bash
-adr-graph install-hook
+ligare install-hook
 ```
 
 This installs a `post-commit` hook that:
 1. Extracts the diff from the latest commit
 2. Identifies affected modules in the DAG
 3. Sends the local subgraph + diff to the semantic layer
-4. Writes a new `SemanticSnapshot` to `.adr-graph/dag.json`
+4. Writes a new `SemanticSnapshot` to `.ligare/dag.json`
 
-The snapshot is committed on the next `git add .adr-graph/ && git commit`.
+The snapshot is committed on the next `git add .ligare/ && git commit`.
 
 ---
 
 ## For AI-Assisted Development
 
-`adr-graph` is designed with AI coding workflows in mind. Before asking an AI assistant to modify a file, run:
+`ligare` is designed with AI coding workflows in mind. Before asking an AI assistant to modify a file, run:
 
 ```bash
-adr-graph impact src/payments/processor.ts
+ligare impact src/payments/processor.ts
 ```
 
 This outputs the architectural constraints governing that file — which decisions are in force, what they require, and what other parts of the system would be affected by a change. Paste this output into your AI context window.
@@ -276,7 +276,7 @@ This outputs the architectural constraints governing that file — which decisio
 After the AI makes changes, run:
 
 ```bash
-adr-graph scan && adr-graph status
+ligare scan && ligare status
 ```
 
 Any binding that has moved to `drifting` or `broken` is a signal that the change either requires a new ADR or needs to be revisited.
@@ -286,7 +286,7 @@ Any binding that has moved to `drifting` or `broken` is a signal that the change
 ## Project Structure
 
 ```
-adr-graph/
+ligare/
 ├── src/
 │   ├── cli/
 │   │   └── index.ts          # CLI entry point
@@ -296,7 +296,7 @@ adr-graph/
 │   │   ├── dag/
 │   │   │   ├── adr-parser.ts # ADR markdown parser
 │   │   │   ├── builder.ts    # DAG assembly
-│   │   │   └── store.ts      # .adr-graph/dag.json persistence
+│   │   │   └── store.ts      # .ligare/dag.json persistence
 │   │   └── semantic/
 │   │       ├── analyzer.ts  # ADR↔Module semantic inference orchestrator
 │   │       ├── client.ts    # Multi-provider LLM client
@@ -305,7 +305,7 @@ adr-graph/
 │       └── graph.ts          # Core type definitions
 ├── docs/
 │   └── adrs/                 # This project's own ADRs
-├── .adr-graph/
+├── .ligare/
 │   └── dag.json              # Generated — commit this
 ├── package.json
 └── tsconfig.json
@@ -315,7 +315,7 @@ adr-graph/
 
 ## Contributing
 
-`adr-graph` is designed to be extended. The core extension points are:
+`ligare` is designed to be extended. The core extension points are:
 
 - **Language adapters** — implement the `LanguageScanner` interface to add Python, Go, etc.
 - **Semantic backends** — swap the LLM provider or implement custom drift detection logic

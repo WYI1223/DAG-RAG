@@ -20,6 +20,8 @@ export interface SemanticAnalysisResult {
   edgesSkipped: number;
   totalInputTokens: number;
   totalOutputTokens: number;
+  totalCacheReadTokens: number;
+  totalCacheCreationTokens: number;
   totalDurationMs: number;
   errors: string[];
 }
@@ -64,6 +66,8 @@ export async function analyzeSemantics(
     edgesSkipped: 0,
     totalInputTokens: 0,
     totalOutputTokens: 0,
+    totalCacheReadTokens: 0,
+    totalCacheCreationTokens: 0,
     totalDurationMs: 0,
     errors: [],
   };
@@ -111,7 +115,8 @@ export async function analyzeSemantics(
         vlog(`\n--- [${adr.node.id}] thinking ---`);
         vlog(response.thinking);
       }
-      vlog(`\n--- [${adr.node.id}] response (${response.inputTokens} in / ${response.outputTokens} out, ${response.durationMs}ms)${truncLabel} ---`);
+      const cacheTag = response.cacheReadTokens > 0 ? `, cache read: ${response.cacheReadTokens}` : "";
+      vlog(`\n--- [${adr.node.id}] response (${response.inputTokens} in / ${response.outputTokens} out, ${response.durationMs}ms${cacheTag})${truncLabel} ---`);
       vlog(response.text);
 
       if (response.truncated) {
@@ -121,6 +126,8 @@ export async function analyzeSemantics(
 
       result.totalInputTokens += response.inputTokens;
       result.totalOutputTokens += response.outputTokens;
+      result.totalCacheReadTokens += response.cacheReadTokens;
+      result.totalCacheCreationTokens += response.cacheCreationTokens;
       result.totalDurationMs += response.durationMs;
 
       // running average tok/s across all calls so far

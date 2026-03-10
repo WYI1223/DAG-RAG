@@ -142,7 +142,7 @@ describe("analyzeSemantics", () => {
       async analyze() {
         return mockResponse(JSON.stringify([
           {
-            kind: "affects",
+            kind: "implements",
             from: adrs[0].node.id,
             to: targetModule.id,
             reason: "ADR mentions math utilities which maps to this module",
@@ -194,7 +194,7 @@ describe("analyzeSemantics", () => {
 
   it("does not duplicate existing edges", async () => {
     const existingEdge = Object.values(dag.edges).find(
-      (e) => e.kind === "implements"
+      (e) => e.kind === "affects"
     )!;
 
     const mockClient: SemanticClient = {

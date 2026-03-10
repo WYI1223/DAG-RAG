@@ -1,7 +1,7 @@
 /**
  * core/dag/store.ts
  *
- * Reads and writes the SemanticDAG to .adr-graph/dag.json
+ * Reads and writes the SemanticDAG to .ligare/dag.json
  * This file lives in the project repo and is versioned with git.
  */
 
@@ -9,7 +9,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { SemanticDAG } from "../../types/graph.js";
 
-const GRAPH_DIR = ".adr-graph";
+const GRAPH_DIR = ".ligare";
 const DAG_FILE = "dag.json";
 
 export function getGraphDir(projectRoot: string): string {
@@ -43,7 +43,7 @@ export function saveDAG(dag: SemanticDAG, projectRoot: string): void {
 }
 
 export function ensureGitignoreEntry(projectRoot: string): void {
-  // .adr-graph/ should be tracked (not ignored)
+  // .ligare/ should be tracked (not ignored)
   // but we do want to ignore any local-only cache files
   const cacheDir = path.join(getGraphDir(projectRoot), ".cache");
   if (!fs.existsSync(cacheDir)) {

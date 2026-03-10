@@ -8,7 +8,7 @@ The first history lives in Git: every line of code ever written, every change, e
 
 The second history lives in people's heads, in Confluence pages, in Slack threads that scroll away: why the code is structured the way it is, what was tried and rejected, what constraints the current architecture is operating under. This history is fragile. It leaves when people leave. It degrades silently as the codebase changes around it.
 
-`adr-graph` exists to make the second history as durable as the first.
+`ligare` exists to make the second history as durable as the first.
 
 ---
 
@@ -22,13 +22,13 @@ The traditional answer to this is documentation. Write more ADRs. Keep them upda
 
 The right answer is to eliminate the gap between documentation and code entirely. Not by generating documentation from code (which loses intent), but by making **ADR + code the single source of truth**. ADRs are small, they record decisions not implementations, and they are maintainable precisely because they don't try to describe everything. The code describes the how. The ADR describes the why. Together they are complete. Separately, neither is sufficient.
 
-`adr-graph` exists to keep these two halves bound together — so tightly that the moment they diverge, the gap becomes visible.
+`ligare` exists to keep these two halves bound together — so tightly that the moment they diverge, the gap becomes visible.
 
 ---
 
 ## Who This Is For
 
-`adr-graph` does not prescribe how your ADRs are written or where they come from. You can write them by hand, extract them from design discussions, or generate drafts with an AI assistant and refine them. The tool only cares about what happens after an ADR exists: whether the code that is supposed to implement it still does.
+`ligare` does not prescribe how your ADRs are written or where they come from. You can write them by hand, extract them from design discussions, or generate drafts with an AI assistant and refine them. The tool only cares about what happens after an ADR exists: whether the code that is supposed to implement it still does.
 
 ### The AI-augmented developer
 
@@ -36,7 +36,7 @@ A growing number of developers work primarily by directing AI assistants: specif
 
 When an AI modifies code, it works from the context it was given. It does not know that the auth module is structured the way it is because of a security decision made eight months ago. It does not know that the payment processor must not be called directly from the frontend because of a compliance constraint. It makes locally reasonable changes that are globally wrong — not because it is unintelligent, but because it is uninformed.
 
-`adr-graph` solves this by making architectural constraints machine-readable and queryable. Before you hand a piece of code to an AI assistant, you can extract the exact constraints that govern it. After the AI makes changes, you can detect automatically whether any of those constraints have been violated.
+`ligare` solves this by making architectural constraints machine-readable and queryable. Before you hand a piece of code to an AI assistant, you can extract the exact constraints that govern it. After the AI makes changes, you can detect automatically whether any of those constraints have been violated.
 
 This is not a workflow for generating better prompts. It is infrastructure for making AI-assisted development architecturally safe.
 
@@ -44,7 +44,7 @@ This is not a workflow for generating better prompts. It is infrastructure for m
 
 A Tech Lead's decisions travel through an imperfect transmission chain: from intent, to document, to team member's interpretation, to code. At every step there is loss. The team member fills gaps with assumptions. Those assumptions get encoded in the codebase and become the de facto architecture — which may or may not be what the Tech Lead intended.
 
-`adr-graph` gives Tech Leads a new capability: **proactive impact analysis**. Before a decision is finalized, they can see which parts of the codebase it would affect, which existing decisions it would supersede or conflict with, and which teams would need to be involved. After a decision is made, they can see whether it is actually being implemented as intended.
+`ligare` gives Tech Leads a new capability: **proactive impact analysis**. Before a decision is finalized, they can see which parts of the codebase it would affect, which existing decisions it would supersede or conflict with, and which teams would need to be involved. After a decision is made, they can see whether it is actually being implemented as intended.
 
 The underlying problem — semantic loss in transmission — is the same as the AI-augmented developer's problem. The decision-maker has intent. The implementer has partial context. The gap between them is where architectural drift is born.
 
@@ -58,7 +58,7 @@ The underlying problem — semantic loss in transmission — is the same as the 
 
 **A project management tool.** ADRs are not tickets. They are not assigned, estimated, or tracked for completion. They are records of reasoning, not units of work.
 
-**A replacement for Git.** `adr-graph` is a layer above Git, not a replacement for it. Every semantic snapshot is anchored to a Git commit. The code history and the semantic history are permanently linked.
+**A replacement for Git.** `ligare` is a layer above Git, not a replacement for it. Every semantic snapshot is anchored to a Git commit. The code history and the semantic history are permanently linked.
 
 ---
 
@@ -73,11 +73,11 @@ A codebase with a complete semantic history becomes a different kind of artifact
 - *What was the architectural state of this system on the day we launched v2?* (historical context for incident analysis)
 - *Which parts of the codebase have the most semantic drift?* (technical debt as a measurable quantity, not a feeling)
 
-These are questions that currently have no answers — not because the information doesn't exist, but because it has never been organized. `adr-graph` is the infrastructure for organizing it.
+These are questions that currently have no answers — not because the information doesn't exist, but because it has never been organized. `ligare` is the infrastructure for organizing it.
 
 The further horizon is a world where AI coding assistants are architecturally aware as a baseline — where the context window always includes the relevant constraints, where drift is detected before it is merged, where the gap between intent and implementation is a tracked metric rather than an invisible accumulation.
 
-That world requires infrastructure that doesn't exist yet. `adr-graph` is one piece of that infrastructure.
+That world requires infrastructure that doesn't exist yet. `ligare` is one piece of that infrastructure.
 
 ---
 
@@ -87,7 +87,7 @@ That world requires infrastructure that doesn't exist yet. `adr-graph` is one pi
 
 **Low friction is a correctness requirement.** A tool that requires significant maintenance will not be maintained. Any feature that creates ongoing manual work will eventually be abandoned, making the system worse than if the feature had never existed. If something can be automated, it must be automated. If something requires human input, the input surface must be as small as possible.
 
-**The graph belongs to the repository.** Semantic history is not a cloud service or a separate database. It lives in `.adr-graph/`, versioned alongside the code, checkpointable, diffable, and permanently linked to the Git history it annotates.
+**The graph belongs to the repository.** Semantic history is not a cloud service or a separate database. It lives in `.ligare/`, versioned alongside the code, checkpointable, diffable, and permanently linked to the Git history it annotates.
 
 **Explicit is better than inferred.** Where a developer takes the time to declare a binding explicitly — through ADR frontmatter, through a confirmation prompt — that binding is more valuable than any LLM inference. The system should always make it easy to be explicit, and should treat explicit bindings with higher trust than inferred ones.
 

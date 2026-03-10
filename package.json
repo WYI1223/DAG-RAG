@@ -1,29 +1,51 @@
 {
-  "name": "adr-graph",
-  "version": "0.1.0",
+  "name": "ligare",
+  "version": "0.3.0",
   "description": "Semantic Git — binds architecture decisions to code, detects drift",
   "type": "module",
   "bin": {
-    "adr-graph": "./dist/cli/index.js"
+    "ligare": "./dist/cli/index.js",
+    "ligare-mcp": "./dist/mcp/server.js"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/cli/index.ts",
     "scan": "tsx src/cli/index.ts scan",
     "viz": "tsx src/cli/index.ts viz",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "mcp:install": "claude mcp add ligare -- npx ligare-mcp",
+    "prepublishOnly": "tsc"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WYI1223/DAG-RAG.git"
+  },
+  "keywords": [
+    "adr",
+    "architecture-decision-records",
+    "drift-detection",
+    "semantic-graph",
+    "mcp",
+    "llm"
+  ],
+  "license": "MIT",
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.26.4",
     "@anthropic-ai/sdk": "^0.78.0",
     "@anthropic-ai/vertex-sdk": "^0.14.4",
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "chalk": "^5.3.0",
     "commander": "^12.0.0",
     "dotenv": "^17.3.1",
     "glob": "^10.3.0",
     "ora": "^8.0.1",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

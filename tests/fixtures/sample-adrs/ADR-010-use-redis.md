@@ -1,6 +1,8 @@
 ---
 id: ADR-010
 status: accepted
+implements:
+  - src/services/cache.ts
 affects:
   - src/
 supersedes: ADR-005

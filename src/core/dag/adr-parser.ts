@@ -22,6 +22,7 @@ import { AdrNode } from "../../types/graph.js";
 export interface AdrFrontmatter {
   id?: string;
   status?: string;
+  implements?: string[];
   affects?: string[];
   supersedes?: string;
   conflicts?: string[];

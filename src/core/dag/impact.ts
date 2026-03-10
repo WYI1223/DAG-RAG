@@ -85,9 +85,9 @@ function getNode<T extends GraphNode>(dag: SemanticDAG, id: string): T | null {
 // ------ module impact analysis ------------------------------
 
 function analyzeModule(target: ModuleNode, dag: SemanticDAG): ModuleImpact {
-  // ADRs that govern this module (implements edges pointing TO this module)
+  // ADRs that govern this module (implements or affects edges pointing TO this module)
   const governingAdrs: AdrNode[] = edgesTo(dag, target.id)
-    .filter((e) => e.kind === "implements")
+    .filter((e) => e.kind === "implements" || e.kind === "affects")
     .map((e) => getNode<AdrNode>(dag, e.from))
     .filter((n): n is AdrNode => n !== null);
 
@@ -95,7 +95,7 @@ function analyzeModule(target: ModuleNode, dag: SemanticDAG): ModuleImpact {
   const siblingSet = new Set<string>();
   for (const adr of governingAdrs) {
     for (const edge of edgesFrom(dag, adr.id)) {
-      if (edge.kind === "implements" && edge.to !== target.id) {
+      if ((edge.kind === "implements" || edge.kind === "affects") && edge.to !== target.id) {
         siblingSet.add(edge.to);
       }
     }
@@ -122,9 +122,9 @@ function analyzeModule(target: ModuleNode, dag: SemanticDAG): ModuleImpact {
 // ------ ADR impact analysis ---------------------------------
 
 function analyzeAdr(target: AdrNode, dag: SemanticDAG): AdrImpact {
-  // modules that implement this ADR
+  // modules bound to this ADR (implements or affects)
   const implementedBy: ModuleNode[] = edgesFrom(dag, target.id)
-    .filter((e) => e.kind === "implements")
+    .filter((e) => e.kind === "implements" || e.kind === "affects")
     .map((e) => getNode<ModuleNode>(dag, e.to))
     .filter((n): n is ModuleNode => n !== null);
 

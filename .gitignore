@@ -1,6 +1,7 @@
 node_modules/
 dist/
-adr-graph.html
+*.html
 .env
-.adr-graph/verbose*.log
-.adr-graph/temp*.log
+.ligare/verbose*.log
+.ligare/temp*.log
+ligare/

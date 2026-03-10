@@ -69,7 +69,7 @@ export function generateHTML(dag: SemanticDAG): string {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>adr-graph — Semantic DAG</title>
+<title>ligare — Semantic DAG</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0d1117; color: #c9d1d9; overflow: hidden; }
@@ -98,7 +98,7 @@ export function generateHTML(dag: SemanticDAG): string {
 <body>
 
 <div id="legend">
-  <h3>adr-graph</h3>
+  <h3>ligare</h3>
   <div class="legend-item"><div class="legend-dot" style="background:#f78166"></div> ADR</div>
   <div class="legend-item"><div class="legend-dot" style="background:#7ee787"></div> Module</div>
   <div class="legend-item"><div class="legend-dot" style="background:#79c0ff"></div> External package</div>

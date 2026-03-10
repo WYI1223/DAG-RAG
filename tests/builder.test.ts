@@ -28,15 +28,23 @@ describe("buildDAG", () => {
     expect(nodes.filter((n) => n.kind === "adr")).toHaveLength(2);
   });
 
-  it("creates implements edges from ADR affects field", () => {
-    const implEdges = Object.values(dag.edges).filter(
-      (e) => e.kind === "implements"
+  it("creates affects edges from ADR affects field", () => {
+    const affectsEdges = Object.values(dag.edges).filter(
+      (e) => e.kind === "affects"
     );
-    expect(implEdges.length).toBe(2);
-    for (const e of implEdges) {
+    expect(affectsEdges.length).toBe(2);
+    for (const e of affectsEdges) {
       expect(e.from).toBe("ADR-010");
       expect(e.certainty).toBe("certain");
     }
+  });
+
+  it("creates implements edges from ADR implements field", () => {
+    // src/services/cache.ts doesn't exist in fixtures, so 0 matches
+    const implEdges = Object.values(dag.edges).filter(
+      (e) => e.kind === "implements"
+    );
+    expect(implEdges.length).toBe(0);
   });
 
   it("creates supersedes edges", () => {
@@ -57,7 +65,8 @@ describe("computeStats", () => {
     expect(stats.adrCount).toBe(2);
     expect(stats.conceptCount).toBe(0);
     expect(stats.dependsOnEdges).toBe(1);
-    expect(stats.implementsEdges).toBe(2);
+    expect(stats.implementsEdges).toBe(0);
+    expect(stats.affectsEdges).toBe(2);
     expect(stats.certainEdges).toBe(stats.totalEdges);
     expect(stats.inferredEdges).toBe(0);
   });

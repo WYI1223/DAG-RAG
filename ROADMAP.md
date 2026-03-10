@@ -1,6 +1,6 @@
 # Roadmap
 
-Current version: **v0.2 — Semantic Layer**
+Current version: **v0.3 — Git Integration & CI**
 
 ---
 
@@ -13,16 +13,18 @@ Current version: **v0.2 — Semantic Layer**
 - TypeScript Compiler API scanner — extracts modules, exports, imports, `depends_on` edges
 - ADR markdown parser — supports MADR and Nygard formats with frontmatter
 - DAG builder — assembles structural graph from AST + ADR data
-- `.adr-graph/dag.json` persistence, versioned with git
+- `.ligare/dag.json` persistence, versioned with git
 - CLI: `init`, `scan`, `status`
 
 ---
 
-## v0.2 — Semantic Layer 🔄 *current*
+## v0.2 — Semantic Layer ✅ *delivered*
 
 **Goal:** Introduce LLM analysis on top of the structural skeleton. Make drift visible.
 
 **Delivered:**
+
+*Semantic edge inference*
 - Multi-provider LLM client (Anthropic direct, AWS Bedrock, Google Vertex, compatible APIs)
 - `analyzeSemantics` — iterates ADRs, calls LLM, merges inferred edges into DAG
 - Keyword-based module filtering to stay within token budget
@@ -30,44 +32,64 @@ Current version: **v0.2 — Semantic Layer**
 - `AnalysisProgress` callback with real-time token/s tracking
 - Graceful degradation: structural analysis runs without API key
 - Prompt optimization: import context in module lines, stricter `implements` definition (ADR-016)
+
+*Drift detection (`check` command)*
+- `ligare check` — LLM evaluates each ADR↔module binding for alignment
+- Code-centric batch checking: one LLM call per module with all governing ADRs, enabling ADR evolution context (ADR-022)
+- Tool-use based structured output: `submit_verdict` tool eliminates JSON parsing failures (ADR-023)
+- On-demand code reading: `read_code` tool lets LLM inspect collapsed code blocks in large files (ADR-024)
+- ADR-aware code summarization with IDF-weighted block selection (ADR-018)
+- Three-tier relevance classification: related / possibly_related / unrelated (ADR-021)
+- Check-time relevance filtering with `--all` override (ADR-019)
+- Frontmatter `implements` vs `affects` edge split (ADR-020)
+- Typed `EdgeMetadata` and `SemanticBinding.relevance` fields in core types
+
+*Visualization & analysis*
 - Interactive DAG visualization with D3.js force-directed + treemap layouts
 - `impact` command — graph traversal to find affected ADRs and modules
 - External package nodes (`ext:` prefix, excluded from semantic analysis)
 
 ---
 
-## v0.3 — Git Integration & Value Validation 🔜
+## v0.3 — Git Integration & CI 🔄 *current*
 
-**Goal:** Connect the semantic layer to the git commit cycle. This is the version where the tool stops being a static analyzer and becomes a live architectural monitor — the point where its real value becomes demonstrable.
+**Goal:** Connect the semantic layer to the git commit cycle. Make drift a continuous signal, not a manual check.
 
-**Planned:**
+**Delivered:**
 
-**Git hook integration**
-- `adr-graph install-hook` — installs a `post-commit` hook
-- On each commit: extract diff → locate affected DAG nodes → query local subgraph → LLM evaluates binding status → write `SemanticSnapshot`
-- Snapshots stored in `.adr-graph/dag.json`, committed alongside code
-- Each snapshot anchored to a git commit hash — full semantic history, free
+**Git-aware incremental check** ✅
+- `ligare check --changed` — only check bindings affected by recent git changes (ADR-025)
+- Git diff extraction: committed + staged + unstaged changes, ADR change propagation
+- Ref resolution: user-specified `--ref` > last snapshot commit > HEAD~1
 
-**Drift display in `status`**
-- `certain` drift: structural — interface removed, import broken, superseded ADR still implemented
-- `inferred` drift: semantic — LLM assessment with confidence score, pending human confirmation
-- Output designed to be immediately actionable: file path, ADR id, reason, suggested next step
+**`SemanticSnapshot` writer** ✅
+- After each `check`, write a snapshot anchored to the current commit hash
+- Track drift count over time — enables trend analysis
+- Snapshots stored in `.ligare/dag.json`, committed alongside code
 
-**Subgraph boundary heuristic**
-- Prioritize nodes with direct ADR bindings over transitive neighbors
-- Drop long-stable nodes (no changes in last N commits)
-- Cap at token budget, never send full graph
+**Drift display in `status`** ✅
+- Show latest check results inline: aligned / drifting / broken per module
+- Output designed to be immediately actionable: file path, ADR id, reason
+
+**GitHub Actions integration**
+- `ligare/action` — runs `check --changed` on every PR
+- PR comment summarizing binding status changes
+- Configurable: warn-only or blocking check
+
+**Project rename** ✅
+- Renamed to `ligare` (npm package published)
 
 ---
 
 ## v0.4 — Cold Start & Multi-language 🔜
+
 
 **Goal:** Make the tool usable on projects with no existing ADRs. Add Python support.
 
 **Planned:**
 
 **Reverse ADR generation**
-- `adr-graph discover` — LLM analyzes structural DAG and suggests candidate ADRs
+- `ligare discover` — LLM analyzes structural DAG and suggests candidate ADRs
 - Output: draft ADR files in `docs/adrs/` with frontmatter pre-filled
 - User reviews and accepts/rejects each suggestion
 - Incremental trust: accepted drafts start as `proposed`, gain confidence as bindings are validated over time
@@ -88,7 +110,7 @@ Current version: **v0.2 — Semantic Layer**
 
 **Planned:**
 
-**`adr-graph viz` enhancements**
+**`ligare viz` enhancements**
 - Timeline slider: scrub through the project's semantic history commit by commit
 - Concept node visualization (when concept nodes are implemented)
 - Edge filtering by certainty and kind
@@ -100,24 +122,20 @@ Current version: **v0.2 — Semantic Layer**
 
 ---
 
-## v0.6 — Collaboration & CI 🔜
+## v0.6 — Collaboration & Reporting 🔜
 
 **Goal:** Make architectural drift a team-level signal, not just a local one.
 
 **Planned:**
-
-**GitHub Actions integration**
-- `adr-graph/action` — runs `scan` + semantic analysis on every PR
-- PR comment: "This PR affects 3 ADR bindings. ADR-012 binding status: drifting (confidence 81%)"
-- Configurable: warn-only or blocking check
 
 **GitHub Bot**
 - Listens for commits to `docs/adrs/` — automatically runs impact analysis on new/modified ADRs
 - Comments on the PR with affected modules and potential conflicts with existing decisions
 
 **Trend reporting**
-- `adr-graph report` — generates a markdown summary of architectural health over time
+- `ligare report` — generates a markdown summary of architectural health over time
 - Metrics: drift count over time, most contested modules, ADRs with highest churn
+- Powered by `SemanticSnapshot` history from v0.3
 
 ---
 
@@ -156,10 +174,8 @@ These are ideas that have been discussed but not yet scheduled. They require mor
 
 If you want to contribute, here is where effort would have the most impact right now:
 
-**v0.3 (next — git integration):**
-- `post-commit` hook implementation and cross-platform testing (macOS, Linux, Windows/WSL)
-- `SemanticSnapshot` writer: diff → affected nodes → binding status → snapshot
-- Drift detection and display in `status` output
+**v0.3 (current — git integration & CI):**
+- GitHub Actions integration: PR-level drift reports
 
 **v0.4:**
 - Python language adapter via Tree-sitter
